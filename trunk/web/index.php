@@ -61,12 +61,12 @@ $view_news .= "</div>";
 
 $view_apc_info = "";
 $last_1000_id=0;
-$last_1000_id=pdo_query("select min(solution_id) from solution where in_date >= NOW() - INTERVAL 8 DAY ");
+$last_1000_id=pdo_query("select min(solution_id) id from solution where in_date >= NOW() - INTERVAL 8 DAY union select max(solution_id)-1000 id from solution order by id desc limit 1");
 if(!empty($last_1000_id))  $last_1000_id=$last_1000_id[0][0];
 if ($last_1000_id==NULL) $last_1000_id=0;
 
 
-$sql = "SELECT date(in_date) md,count(1) c FROM (select * from solution where solution_id > $last_1000_id  $not_in_noip_contests and result<13 and problem_id>0 and  result>=4 ) solution group by md order by md desc ";
+$sql = "SELECT date(in_date) md,count(1) c FROM (select * from solution where solution_id > $last_1000_id  $not_in_noip_contests and result<13 and problem_id>0 and  result>=4 ) solution group by md order by md desc limit 1000";
 $result = mysql_query_cache( $sql ); //mysql_escape_string($sql));
 $chart_data_all = array();
 //echo $sql;
@@ -75,7 +75,7 @@ foreach ( $result as $row ) {
         array_push( $chart_data_all, array( $row[ 'md' ], $row[ 'c' ] ) );
 }
 
-$sql = "SELECT date(in_date) md,count(1) c FROM  (select * from solution where solution_id > $last_1000_id $not_in_noip_contests and result=4 and problem_id>0) solution group by md order by md desc ";
+$sql = "SELECT date(in_date) md,count(1) c FROM  (select * from solution where solution_id > $last_1000_id $not_in_noip_contests and result=4 and problem_id>0) solution group by md order by md desc limit 1000";
 $result2 = mysql_query_cache( $sql ); //mysql_escape_string($sql));
 $ac=array();
 foreach ( $result2 as $row ) {
