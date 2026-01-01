@@ -33,7 +33,9 @@
         <label for="preview-toggle">题目预览</label>
     </div>
           <?php echo "<h3>".$MSG_TITLE."</h3>"?>
-          <input class="input input-large" style="width:100%;" type=text name='title' > <input type=submit value='<?php echo $MSG_SAVE?>' name=submit> 
+          <input class="input input-large" style="width:100%;" type=text name='title' id='title' > 
+		<input class="btn btn-success" type=submit value='<?php echo $MSG_SAVE?>' name=submit> 
+	  <input class='btn btn-primary' id='ai_bt' type=button value='AI一下' onclick='ai_gen()' >
 	</p>
         <p align=left>
           <?php echo $MSG_Time_Limit?>
@@ -154,7 +156,7 @@
 	let memory=$("input[name=memory_limit]").val();
 	preview.find("span.ui.label").eq(1).html("<?php echo $MSG_Memory_Limit ?>："+memory);
 	
-	let description=$("textarea").eq(1).val();
+	let description=$("textarea").eq(0).val();
 	preview.find("#description").html(description);
 	preview.find("#description .md").each(function(){
 		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
@@ -217,6 +219,34 @@ function untransform() {
     $("input").off('keyup', sync);
     $("textarea").off('keyup', sync);
 }
+
+	function ai_gen(filename){
+		    let oldval=$('#ai_bt').val();
+		    $('#ai_bt').val('AI思考中...请稍候...');
+		    $('#ai_bt').prop('disabled', true);;
+		    let title=$('#title').val();
+		    $.ajax({
+		    	url: '../<?php echo $OJ_AI_API_URL?>', 
+			type: 'GET',
+			data: { title: title },
+			success: function(data) {
+			    console.log(title);
+			    let description="<span class='md'>"+(data)+"</span>";
+			    let preview=$("#previewFrame").contents();
+                            $("textarea").eq(0).val(description); // 假设 #file_data 是 div
+                            $("textarea").eq(2).val(""); //
+                            $("textarea").eq(3).val(''); //
+                            $("textarea").eq(10).val(''); //
+			    window.setTimeout('sync()',1000);
+		    	    $('#ai_bt').prop('disabled', false);
+			        $('#ai_bt').val("再来一次");
+			},
+			error: function() {
+			    $('#ai_bt').val('获取数据失败');
+		    	$('#ai_bt').prop('disabled', false);
+			}
+		    });
+	}
 
 </script>
 </body>
