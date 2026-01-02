@@ -9,10 +9,11 @@
 require_once("../include/db_info.inc.php");
 require_once("../include/my_func.inc.php");
 // 设置请求的URL
-$url = 'http://demo.hustoj.com/aiapi/proxy.php';
+$url = 'http://demo.hustoj.com/aiapi/proxy.php';   // 千问是：'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
 $apiKey = "设置为阿里云的API-KEY";   //https://bailian.console.aliyun.com/?tab=model#/api-key  创建新的API KEY
 $models=array("qwen-turbo","qwen3-coder-480b-a35b-instruct","qwen3-max","qwen3-coder-30b-a3b-instruct");
 
+$temperature=0.8;
 $http_referer =basename(parse_url( $_SERVER['HTTP_REFERER'])['path']);
 if((isset($_SESSION[$OJ_NAME.'_administrator'])|| isset($_SESSION[$OJ_NAME.'_problem_editor']) ) ){
        if(str_starts_with( basename($http_referer),"phpfm.php")|| str_starts_with( basename($http_referer),"submitpage.php") ){
@@ -26,6 +27,7 @@ if((isset($_SESSION[$OJ_NAME.'_administrator'])|| isset($_SESSION[$OJ_NAME.'_pro
 		3. 不要添加\"这是一个...\"、\"以下是...\"等解释性文字
 		4. 直接以import、def、class或注释开始代码
 		5. 确保代码是完整且可执行的
+		6. 严格按照题目要求的范围、难度比例来生成数据
 		现在，写一个Python程序，给下面的题目生成测试输入数据,要求生成10个.in文件，分别命名为test_01.in ~ test_10.in，数据量、数据难度依次增加。";
 	}else if($gen_name=="Main.c" || $gen_name=="Main.cc"){
 		$prompt_sys="你是一个C语言代码生成器。严格遵循以下规则：
@@ -49,74 +51,49 @@ if((isset($_SESSION[$OJ_NAME.'_administrator'])|| isset($_SESSION[$OJ_NAME.'_pro
 	$prompt_user="题目是:".$problem ;
        }else if(basename($http_referer)=="problem_add_page.php"){
 	       $title=$_GET['title'];
+		    if($title==""){
+                       $prompt_sys="请创作一个天马行空、富有诗意或超现实意境的标题，具体要求如下：
+
+1. 核心形式：一个简短的名词短语。
+2. 核心手法：将两个看似无关的具象名词（或概念）进行诗意联结。
+3. 字数限制：中文10字以内，英文3-5个单词为佳。
+4. 效果要求：无需解释，但需激发强烈的好奇心与故事画面感。
+5. 从古诗、词、成语、名著、神话、小说、卡通、漫画、修仙、短剧、网络梗中寻找灵感，可以直接用一句古诗、或者替换古诗中的名词为现代词汇
+6. 不要说什么抱歉之类的话，我只需要一个简短的标题。
+示例参考：鲸鱼背上的古书店、液态时钟、云朵收银机。
+
+现在，请根据以上规则生成一个新的标题。";
+                       $prompt_user="今天是".date("Y-m-d H:i:s").",找找最新的热点新闻，最近的节日、历史上的今天，给你一个随机数".rand()."，帮我想一个标题吧，不要多余的解释，就一个标题。";
+				       $temperature=1.2;
+               }else{
+
 	       $prompt_sys="1. 你是一个经验丰富的ICPC NOIP 出题人
-2. 出题的时候不输出‘好的，遵照您的要求’这种开头，直接'#题目背景'开始
+2. 出题的时候不输出‘好的，遵照您的要求’这种开头，直接'#题目背景'开始, 注意不要重复输出同一个内容
 3. 以用户给出的题目为题，创作一道小学生级别的NOIP编程题
-
-创作要素要求
-1. 逻辑背景设计
+4. 逻辑背景设计
 生活化场景：将数学/逻辑问题融入日常情境
-
 年龄适配：选择小学生熟悉的场景（学校、游戏、节日等）
-
 问题直观：题目描述能让小学生直接理解要解决的问题
 
-2. 题目结构规范
-text
-[题目名称]
-[题目背景]：约3-5句，建立情景联系
-
-[题目描述]：
-- 清晰定义问题
-- 说明计算规则
-- 用简单例子辅助理解
-
-[输入格式]：
-- 明确变量含义
-- 说明数据范围
-- 格式示例
-
-[输出格式]：
-- 明确输出内容
-- 格式要求
-- 精度/格式说明
-
-[样例]：
-输入：
-[具体输入]
-输出：
-[对应输出]
-样例解释：[逐步说明]
-
-[数据范围]：
-- 分级说明（如30%、60%、100%数据范围）
-- 边界值说明
-3. 难度控制标准
+5. 难度控制标准
 知识点：仅使用小学1-6年级数学知识
-
 算法：基础循环、条件判断、简单数组
-
 复杂度：O(n)或O(n²)可接受解法
-
 代码量：目标解≈20-50行代码
 
-4. 验证要求
+6. 验证要求
 样例能手工验证
-
 边界情况明确
-
 有唯一确定解
-
 符合NOIP格式标准
-
 主题填充示例
 节日庆祝（如：元旦、春节、儿童节）
-
 校园生活（如：分物品、排队、比赛计分）
-
 游戏场景（如：棋盘游戏、卡牌游戏、闯关积分）
-
 日常生活（如：购物计算、时间安排、路径选择）
+经典故事（如：格林童话、四大名著、科幻电影）
+7、必须有不同输入产生不同输出的情况，不能只有唯一输出可能。
+8、题目每个部分信息只输出一次，不要重复输出、不要重复输出、不要重复输出
 
 输出格式示例
 markdown
@@ -136,14 +113,14 @@ markdown
 
 ## 样例
 输入：
-[输入数据]
-
+```[输入数据]
+```
 text
 输出：
-[输出数据]
-
+```[输出数据]
+```
 text
-解释：[步骤说明]
+解释：[步骤说明 小于50字]
 
 ## 数据范围
 - 对于30%的数据：[范围1]
@@ -151,8 +128,13 @@ text
 - 对于100%的数据：[范围3]
 
 ## 提示
-[可选解题思路提示] ";
-	$prompt_user="题目是:".htmlentities($title);
+[可选解题思路提示 小于100字]
+
+9. 提示是最后一项内容，之后不要再重复输出题目
+";
+        $prompt_user="题目信息**只输出一次**，题目是:".htmlentities($title);
+
+			}
        }
 }
 if( basename($http_referer)=="reinfo.php" ||  basename($http_referer)=="ceinfo.php"){
@@ -218,6 +200,7 @@ $model = $models[array_rand($models)];
 $data = [
     // 此处以qwen-plus为例，可按需更换模型名称。模型列表：https://help.aliyun.com/zh/model-studio/getting-started/models
     "model" => "$model",
+	"temperature" => "$temperature",
     "messages" => [
         [
             "role" => "system",

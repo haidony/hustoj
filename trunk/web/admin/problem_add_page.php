@@ -36,6 +36,7 @@
           <input class="input input-large" style="width:100%;" type=text name='title' id='title' > 
 		<input class="btn btn-success" type=submit value='<?php echo $MSG_SAVE?>' name=submit> 
 	  <input class='btn btn-primary' id='ai_bt' type=button value='AI一下' onclick='ai_gen()' >
+		<input class='btn btn-danger'  type=reset value='<?php echo $MSG_RESET?>' >
 	</p>
         <p align=left>
           <?php echo $MSG_Time_Limit?>
@@ -231,15 +232,19 @@ function untransform() {
 			data: { title: title },
 			success: function(data) {
 			    console.log(title);
-			    let description="<span class='md'>"+(data)+"</span>";
-			    let preview=$("#previewFrame").contents();
-                            $("textarea").eq(0).val(description); // 假设 #file_data 是 div
-                            $("textarea").eq(2).val(""); //
-                            $("textarea").eq(3).val(''); //
-                            $("textarea").eq(10).val(''); //
-			    window.setTimeout('sync()',1000);
-		    	    $('#ai_bt').prop('disabled', false);
-			        $('#ai_bt').val("再来一次");
+				if(title==""){
+						$('#title').val(data);
+				}else{
+						let description="<span class='md'>"+(data)+"</span>";
+						let preview=$("#previewFrame").contents();
+						$("textarea").eq(0).val(description); // 假设 #file_data 是 div
+						$("textarea").eq(2).val(""); //
+						$("textarea").eq(3).val(''); //
+						$("textarea").eq(10).val(''); //
+				}
+				window.setTimeout('sync()',1000);
+				$('#ai_bt').prop('disabled', false);;
+				$('#ai_bt').val('AI一下');
 			},
 			error: function() {
 			    $('#ai_bt').val('获取数据失败');
