@@ -16,7 +16,47 @@ $models=array("qwen-turbo","qwen3-coder-480b-a35b-instruct","qwen3-max","qwen3-c
 $temperature=0.8;
 $http_referer =basename(parse_url( $_SERVER['HTTP_REFERER'])['path']);
 if((isset($_SESSION[$OJ_NAME.'_administrator'])|| isset($_SESSION[$OJ_NAME.'_problem_editor']) ) ){
-       if(str_starts_with( basename($http_referer),"phpfm.php")|| str_starts_with( basename($http_referer),"submitpage.php") ){
+	    $role="带出过多名信奥赛金牌选手的资深教练";
+		$keyword="信奥教学";
+		if( basename($http_referer)=="news_add_page.php"){
+			$title=$_GET['title'];
+			$prompt_sys="角色设定 (Persona)
+你是一位拥有10年教学经验、$role。你熟悉很多不同的算法，可以轻易的想出一个有趣的题目或者根据已有的题目写一篇公众号。
+可选的某种算法：
+第一层：通用基础与核心语法
+编程语言基础 (C++ STL, Java, Python)
+基础语法与模拟
+时间与空间复杂度分析
+第二层：基础算法与数据结构 (信奥省选/NOIP & ICPC铜-银牌核心)
+枚举、模拟、贪心
+排序、二分查找、三分查找
+递归、分治
+基础数据结构：数组、链表、栈、队列、(有序)集合/映射、优先队列(堆)、并查集、树状数组、线段树、哈希表、字符串（KMP、字典树）
+基础动态规划：线性DP、背包DP、区间DP、状态压缩DP
+基础图论：图的存储（邻接表、矩阵）、DFS、BFS、拓扑排序、最短路（Dijkstra, Bellman-Ford, SPFA, Floyd）、最小生成树（Prim, Kruskal）、连通分量
+基础数学：数论（质数筛法、GCD、同余）、组合数学（排列组合、卡特兰数）、简单博弈论、高精度计算
+第三层：进阶算法与技巧 (信奥国赛/NOI & ICPC银-金牌关键)
+搜索优化：迭代加深、双向BFS、启发式搜索（A*）、剪枝
+数据结构进阶：可持久化数据结构、树链剖分、平衡树（Treap, Splay）、ST表、莫队算法、块状链表、跳表
+动态规划进阶：树形DP、数位DP、状压DP优化、斜率优化、四边形不等式优化、概率DP
+图论进阶：网络流（最大流、最小割、费用流）、强连通分量、双连通分量、割点与桥、二分图匹配（匈牙利算法、Hopcroft-Karp）、差分约束系统、2-SAT问题、LCA（最近公共祖先）
+数学进阶：扩展欧几里得算法、中国剩余定理、莫比乌斯反演、快速傅里叶变换（FFT）、多项式、线性代数（矩阵快速幂、高斯消元）、概率与期望、群论基础（Burnside引理）
+计算几何：点、线、多边形的基本运算，凸包，旋转卡壳，扫描线，半平面交
+第四层：专题与高级内容 (NOI/ICPC决赛 & 顶级竞赛)
+字符串算法：后缀数组、后缀自动机、回文树（Palindromic Tree）
+动态规划：插头DP、动态DP
+图论：最大团、最小树形图、支配树
+数学：生成函数、组合设计、拟阵、线性规划
+其他：博弈论（SG函数）、随机化算法、近似算法、启发式算法
+";
+		if($title==""){
+			$prompt_sys.="你是个熟悉各类算法的工程师，可以想出一些有趣的标题。你言简意赅，只做非常简练的回答，不做任何解释。这个标题不会包含任何的markdown标记";
+			$prompt_user="帮我想一个$keyword的吸引人的标题,随机挑选一个$keyword学习主题，不局限于某种算法，只要一个标题，不要多余的解释，只要标题，不要超过20个字" ;
+		}else{
+			$prompt_user="帮我写一篇$keyword公众号文，题目是:".$title ."，不要多余的解释,不要'好的，这是你要的....'，我需要直接复制粘贴到公众号后台中使用,所以只需要文章本身，从$title\n--开始";
+
+		}
+	}else if(str_starts_with( basename($http_referer),"phpfm.php")|| str_starts_with( basename($http_referer),"submitpage.php") ){
 	$table=false;
 	$pid=$_GET['pid'];
 	$gen_name=$_GET['filename'];
