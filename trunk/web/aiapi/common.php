@@ -23,7 +23,7 @@ if(basename($_SERVER['PHP_SELF'])!=="cron.php"){
 
 	";
 			if($title==""){
-				$prompt_sys.="你可以想出一些有趣的标题。你言简意赅，只做非常简练的回答，不做任何解释。这个标题不会包含任何的markdown标记,长度不要超过30字符";
+				$prompt_sys.="你可以想出一些有趣的标题。你言简意赅，只做非常简练的回答，不做任何解释。这个标题不会包含任何的markdown标记,长度不要超过30字符,可以随机的采用某一句诗词或者游戏的名字，或者上市公司的简称，用广为人知的梗替换诗句中的名词。";
 				$prompt_user="想一个$keyword的吸引人的标题,随机挑选一个$keyword学习主题，不局限于某种算法，只要一个标题，不要多余的解释，只要标题，不要超过20个字" ;
 			}else{
 				$prompt_sys.="
@@ -77,7 +77,7 @@ if(basename($_SERVER['PHP_SELF'])!=="cron.php"){
 		       $title=$_GET['title'];
 			    if($title==""){
 			       $prompt_sys=file_get_contents(dirname(__FILE__)."/title.md");
-			       $prompt_user="今天是".date("Y-m-d H:i:s").",找找最新的热点新闻，最近的节日、历史上的今天，给你一个随机数".rand()."，帮我想一个标题吧，不要多余的解释，就一个标题。";
+			       $prompt_user="今天是".date("Y-m-d H:i:s").",找找最新的热点新闻，最近的节日、历史上的今天，可以参考一些唐诗宋词、股票简称、动漫剧情、网络热梗，给你一个随机数".rand()."，帮我想一个标题吧，不要多余的解释，就一个标题。";
 			      if(isset($temperature)) $temperature=1.2;
 		       }else{
 
