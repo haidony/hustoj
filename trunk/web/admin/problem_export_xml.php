@@ -295,12 +295,13 @@ else {
     <?php  if($_POST['remote_name']=="")  printTestCases($row['problem_id'],$OJ_DATA)?>
     <hint><![CDATA[<?php echo $row['hint']?>]]></hint>
     <source><![CDATA[<?php echo fixcdata($row['source'])?>]]></source>
-    <remote_oj><![CDATA[<?php echo $_POST['remote_name']!=""?basename($_POST['remote_name']):fixcdata($row['remote_oj'])?>]]></remote_oj>
-    <remote_id><![CDATA[<?php echo $_POST['remote_name']!=""?$row['problem_id']:fixcdata($row['remote_id'])?>]]></remote_id>
+    <remote_oj><![CDATA[<?php echo !empty($_POST['remote_name'])?htmlentities(basename($_POST['remote_name'])):fixcdata($row['remote_oj'])?>]]></remote_oj>
+    <remote_id><![CDATA[<?php echo !empty($_POST['remote_name'])?$row['problem_id']:fixcdata($row['remote_id'])?>]]></remote_id>
 
     <?php
     $pid = $row['problem_id'];
-    for ($lang=0; $lang<count($language_ext); $lang++) {
+    $total_lang = isset($language_ext)?count($language_ext):2;
+    for ($lang=0; $lang< $total_lang ; $lang++) {
       $solution = getSolution($pid,$lang);
 
       if ($solution->language)

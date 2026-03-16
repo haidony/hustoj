@@ -10,7 +10,7 @@ if(!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_
     exit(1);
   }
   echo "<center><h3>".$MSG_CONTEST."-".$MSG_ADD."</h3></center>";
-  include_once("kindeditor.php") ;
+  
 ?>
 
 <body leftmargin="30" >
@@ -141,9 +141,9 @@ else{
     sort($_POST['pid']);
     foreach($_POST['pid'] as $i){       
       if($plist)
-      $plist.=','.intval($i);
+      	$plist.=','.intval($i);
       else
-        $plist=$i;
+        $plist=intval($i);
     }
   $plist = trim($_POST['hlist']);
   $pieces = explode(",",$plist );
