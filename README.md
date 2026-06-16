@@ -33,7 +33,7 @@
 
 [校园网安装](#校园网安装)
 
-[基于 Ubuntu 20.04 安装](#基于-ubuntu-2004-安装)  ***新手首选, 各类软件最新，最容易操作成功***
+[基于 Ubuntu 24.04 安装](#基于-ubuntu-2004-安装)  ***新手首选, 各类软件最新，最容易操作成功***
 
 [Ubuntu 更换软件源](#ubuntu-更换软件源)
 
@@ -112,7 +112,7 @@ HUSTOJ 是采用 GPL 的自由软件。(仅限原创部分代码，其中使用�
 * masteroj uoj loj syzoj zoj qduoj openJudger [scratch-run](https://github.com/VNOI-Admin/scratch-run) [PHPMailer](https://github.com/zhblue/hustoj/tree/PHPMailer)
 * linux apache nginx php mysql mariadb memcached [sqlite](https://sqlite.org/)
 * bootstrap kindeditor ACEeditor blockly codemirror katex phpfilemanager mdui
-* sim gcc clang openjdk freepascal mono docker SyntaxHighlighter
+* sim gcc clang openjdk freepascal mono docker SyntaxHighlighter marked.js
 
 排名不分先后本列表欢迎补充
 
@@ -154,6 +154,9 @@ Star us, please!
 	
 日期  | 类型 |  更新内容 | 图
 ------- | :--:  | :--: | :-------
+05-17 | 更新 | 支持基于testlib.h的交互器判题| 感谢Firefly提供的交互器例子。
+05-15 | 更新 | 下载测试数据（download.php）和运行错误、错误答案的解析（reinfo.php），升级为收费（积分Coin）服务。|用 🪙 标识
+05-12 | 更新 | 用户做题可得积分(金币)，管理员可给用户积分奖励，积分可由管理员进行消费抵扣(线下奖励)，用户自行二次开发可增加积分消费功能。| <img width="227" height="48" alt="image" src="https://github.com/user-attachments/assets/b89faa7c-5021-4e01-b289-edc94385dcd3" />
 01-29 | 更新 | 基于人工智能的题目分类标签生成 | ![QQ20260129-151030](https://github.com/user-attachments/assets/8018bda2-1af1-4690-a537-9b13c70dd83f)
 01-22 | 更新 | 修改AI调用为异步模式运行，不再影响php-fpm的进程池。|在db_info.inc.php中增加变量 $OJ_AI_API_URL=”aiapi/qwen.php”;    //根据所需选择aiapi目录中的某个文件。配置$OJ_AI_API_URL所指向的文件，主要是提供其中的$apiKey 的值，其他内容可根据自己需求修改调整。
 01-01 | 更新 | 允许AI辅助造题，纯鼠标点击的造题模式。|<img width="623" height="531" alt="image" src="https://github.com/user-attachments/assets/b6d4d937-142b-4068-b0b4-e06f0841492f" />
@@ -465,11 +468,11 @@ Star us, please!
 
 阿里云用户请百度 `阿里云 80端口`
 
-### 基于 Ubuntu 22.04 安装
+### 基于 Ubuntu 24.04 安装
 
 **各类公有云首选, 最容易，成功率最高，近期部署数量最多，开发者原型机，有用户使用WSL部署成功**
 	
-### 基于 Ubuntu 24.04 安装	
+### 基于 Ubuntu 26.04 安装	
 	
 **有问题在群中反馈，优先解决**	
 

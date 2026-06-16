@@ -77,12 +77,12 @@ if(!($OJ_TEMPLATE=="syzoj" || $OJ_TEMPLATE=="sidebar")) {
 // 获取最近提交统计的起始ID
 $view_apc_info = "";
 $last_1000_id = 0;
-$last_1000_id = mysql_query_cache("select min(solution_id) id from solution where in_date >= NOW() - INTERVAL 8 DAY union select max(solution_id)-1000 id from solution order by id desc limit 1");
-if (!empty($last_1000_id)) $last_1000_id = $last_1000_id[0][0];
-if ($last_1000_id == NULL) $last_1000_id = 0;
+$last_1000_id = mysql_query_cache("select min(solution_id) id from solution where in_date >= NOW() - INTERVAL 8 DAY union select max(solution_id) id from solution order by id desc limit 1");
+if (!empty($last_1000_id)) $last_1000_id = $last_1000_id[0][0]-1000;
+if ($last_1000_id == NULL || $last_1000_id < 0 ) $last_1000_id = 0;
 
 // 查询所有提交数据用于生成统计图表
-$sql = "SELECT date(in_date) md,count(1) c FROM (select * from solution where solution_id > $last_1000_id  $not_in_noip_contests and result<13 and problem_id>0 and  result>=4 ) solution group by md order by md desc limit 1000";
+$sql = "SELECT date(in_date) md,count(1) c FROM (select in_date from solution where solution_id > $last_1000_id  $not_in_noip_contests and result<13 and problem_id>0 and  result>=4 ) solution group by md order by md desc limit 1000";
 $result = mysql_query_cache($sql); //mysql_escape_string($sql));
 $chart_data_all = array();
 //echo $sql;
@@ -92,7 +92,7 @@ if (!empty($result))
     }
 
 // 查询AC提交数据用于生成统计图表
-$sql = "SELECT date(in_date) md,count(1) c FROM  (select * from solution where solution_id > $last_1000_id $not_in_noip_contests and result=4 and problem_id>0) solution group by md order by md desc limit 1000";
+$sql = "SELECT date(in_date) md,count(1) c FROM  (select in_date from solution where solution_id > $last_1000_id $not_in_noip_contests and result=4 and problem_id>0) solution group by md order by md desc limit 1000";
 $result2 = mysql_query_cache($sql); //mysql_escape_string($sql));
 $ac = array();
 foreach ($result2 as $row) {

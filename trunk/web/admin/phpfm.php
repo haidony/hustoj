@@ -5,8 +5,7 @@ require_once("../include/my_func.inc.php");
 if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])
       ||isset($_SESSION[$OJ_NAME.'_'.'problem_editor'])
      )){
-	echo $_SESSION[$OJ_NAME.'_'.'administrator'];
-	echo "<a href='../loginpage.php'>Please Login First!</a>";
+	echo htmlentities($_SESSION[$OJ_NAME.'_'.'administrator'], ENT_QUOTES, 'UTF-8');
 	exit(1);
 }
 // this is not a webshell , and it need administrator / problem editor  membership to use, 
@@ -190,7 +189,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])
             chdir($current_dir);
 	    $user_id=$_SESSION[$OJ_NAME.'_user_id'];
 	    $nick=$_SESSION[$OJ_NAME.'_nick'];
-            if(file_exists($current_dir."/Gen.py")  || file_exists($current_dir."/Main.c") || file_exists($current_dir."/Main.cc") ){
+            if(file_exists($current_dir."/interactor.cc") ||file_exists($current_dir."/Gen.py")  || file_exists($current_dir."/Main.c") || file_exists($current_dir."/Main.cc") ){
     		$sql = "INSERT INTO solution(problem_id,user_id,nick,in_date,language,ip,code_length,result) VALUES(?,?,?,NOW(),?,?,?,1)";
     		$insert_id = pdo_query($sql, -$pid, $user_id, $nick, 6 , $ip, 0 );
 		echo "$pid pending".$insert_id."<img src='../image/loader.gif'>";
@@ -524,7 +523,7 @@ function et($tag){
     $cn['Seconds'] = '秒';
     $cn['ErrorReport'] = '错误报告';
     $cn['Random-data'] = '随机测试数据生成器';
-    $cn['GenerateOut'] = '用Gen.py+Main.c生成测试数据';
+    $cn['GenerateOut'] = '生成测试数据或交互器';
     $cn['Ans2out'] = '自动修订文件名';
     $cn['IOFilename'] = '指定输入输出文件名';
     $cn['SolutionFilename'] = '指定NOIP提交代码文件名';
@@ -2601,23 +2600,36 @@ function format_path($str){
     return $str;
 }
 function array_csort() {
-  $args = func_get_args();
-  $marray = array_shift($args);
-  $msortline = "return(array_multisort(";
-   foreach ($args as $arg) {
-       $i++;
-       if (is_string($arg)) {
-          foreach ($marray as $row) {
-               $sortarr[$i][] = $row[$arg];
-           }
-       } else {
-          $sortarr[$i] = $arg;
-       }
-       $msortline .= "\$sortarr[".$i."],";
-   }
-   $msortline .= "\$marray));";
-   eval($msortline);
-   return $marray;
+    $args = func_get_args();
+    if (empty($args)) {
+        return [];
+    }
+
+    // 取出需要排序的二维数组
+    $marray = array_shift($args);
+    $sortParams = [];
+
+    foreach ($args as $arg) {
+        if (is_string($arg)) {
+            // 如果参数是字符串（列名），提取该列的值作为排序依据
+            $columnData = [];
+            foreach ($marray as $row) {
+                $columnData[] = $row[$arg];
+            }
+            $sortParams[] = $columnData;
+        } else {
+            // 如果是排序方向（SORT_ASC/SORT_DESC）或排序类型（SORT_REGULAR等）
+            $sortParams[] = $arg;
+        }
+    }
+
+    // 关键点：将原数组的引用放入参数列表的末尾，以便 array_multisort 能直接修改它
+    $sortParams[] = &$marray;
+
+    // 使用 ... 运算符将数组解包为独立的参数，完美替代 eval
+    array_multisort(...$sortParams);
+
+    return $marray;
 }
 function show_perms( $P ) {
    $sP = "<b>";
@@ -3053,7 +3065,17 @@ function getmicrotime(){
    list($usec, $sec) = explode(" ", microtime());
    return ((float)$usec + (float)$sec);
 }
-
+function getSubtaskName($filename) {
+        // 统计点号在多字节字符串中出现的总次数
+    $dotCount = mb_substr_count($filename, '.');
+    // 只有点号数量 >= 2 时才处理
+    if ($dotCount >= 2) {
+        $dotPosition = mb_strpos($filename, '.');
+        return "&nbsp;&nbsp;&nbsp;子任务:".mb_substr($filename, 0, $dotPosition);
+    }
+    // 否则返回空字符串
+    return '';
+}
 function tips($filename) {
     // 统一处理大小写（部分匹配不区分大小写）
     $lower = strtolower($filename);
@@ -3064,7 +3086,7 @@ function tips($filename) {
     } elseif ($lower === 'main.cc') {
         return '标准C++程序';
     } elseif ($lower === 'gen.py') {
-        return '测试输入数据生成器Python脚本';
+        return '输入数据生成器Python脚本';
     } elseif ($lower === 'solution.name') {
         return '强制上传文件方式提交答案，内含规定文件名';
     } elseif ($lower === 'input.name') {
@@ -3079,8 +3101,10 @@ function tips($filename) {
     if (preg_match('/\.(in|out)$/i', $filename, $ext_matches)) {
         if (preg_match('/\[([0-9]+)\]/', $filename, $score_matches)) {
             $score = intval($score_matches[1]);
-            return "分值{$score}";
-        }
+            return ($ext_matches[1]=="in"?"&nbsp;&nbsp;&nbsp;":"")."分值{$score} ".getSubtaskName($filename);
+        }else{
+			return ($ext_matches[1]=="in"?"&nbsp;&nbsp;&nbsp;":"").getSubtaskName($filename);
+		}
     }
 
     // 匹配 template.*、prepend.*、append.*
@@ -3160,7 +3184,7 @@ function dir_list_form() {
             $entry_list[$entry_count]["name"] = $file;
             $entry_list[$entry_count]["date"] = date("Ymd", filemtime($current_dir.$file));
             $entry_list[$entry_count]["time"] = date("his", filemtime($current_dir.$file));
-            $entry_list[$entry_count]["datet"] = date("d/m/y h:i", filemtime($current_dir.$file));
+            $entry_list[$entry_count]["datet"] = date("Y-m-d h:i", filemtime($current_dir.$file));
             if ($islinux && $resolveIDs){
                 $entry_list[$entry_count]["p"] = show_perms(fileperms($current_dir.$file));
                 $entry_list[$entry_count]["u"] = get_user(fileowner($current_dir.$file));
@@ -3830,7 +3854,17 @@ subtask的题目中也可以有不跟其他数据绑定的，认为是自己一�
             <td bgcolor=\"#DDDDDD\" width=\"1%\"><td bgcolor=\"#DDDDDD\" colspan=50><nobr><a href=\"".$path_info["basename"]."?frame=3&current_dir=".basename($current_dir)."\">".basename($current_dir)."</a></nobr>
             <tr><td bgcolor=\"#DDDDDD\" colspan=50>".et('EmptyDir').".</tr><script>window.setTimeout('confirm_ai()',2000)</script>";
         }
-    } else $out .= "<tr><td><font color=red>".et('IOError').".<br>".basename($current_dir)."</font>";
+    } else{
+		$out .= "<tr><td><font color=red>".et('IOError').".<br>".basename($current_dir)."</font>";
+	    if(intval($pid)==$pid){
+                    $sql="select title from problem where problem_id=?";
+                    $title=pdo_query($sql,$pid);
+                    if(is_array($title) && !empty($title[0][0])) {
+                            echo "题目存在，目录丢失，建立空目录";
+                            mkdir($current_dir,0711);
+                    }
+        }
+	}
     $out .= "</table>";
     echo $out;
 }

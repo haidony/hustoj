@@ -101,6 +101,12 @@ $delay=pdo_query($sql);
       <td><p><?php echo $MSG_HELP_USER_ADD?></p></td>
     </tr>
   <?php }?>
+  <?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'user_adder'])){?>
+    <tr>
+      <td><center><a class='btn btn-primary btn-sm' href="user_import.php" target="main"><b><?php echo $MSG_USER."-".$MSG_IMPORT?></b></a></center></td>
+      <td><p><?php echo $MSG_HELP_USER_IMPORT?></p></td>
+    </tr>
+  <?php }?>
   <?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset( $_SESSION[$OJ_NAME.'_'.'password_setter'] )){?>
     <tr>
       <td><center><a class='btn btn-primary btn-sm' href="changepass.php" target="main"><b><?php echo $MSG_USER."-".$MSG_SETPASSWORD?></b></a></center></td>
@@ -201,11 +207,12 @@ $delay=pdo_query($sql);
   </tbody>
 </table>
 
-<?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])&&!$OJ_SAE){?>
+<?php if (isset($_SESSION[$OJ_NAME.'_'.'administrator'])){?>
   <a href="problem_copy.php" target="main" title="Create your own data"><font color="eeeeee">CopyProblem</font></a> <br>
   <a href="problem_changeid.php" target="main" title="Danger,Use it on your own risk"><font color="eeeeee">ReOrderProblem</font></a>
   
 <?php }?>
-
+<script id="MathJax-script" async src="../template/syzoj/js/tex-chtml.js?v=0.31"></script>
+<script id="marked" async src="../template/syzoj/js/marked.min.js"></script>
 </body>
 </html>

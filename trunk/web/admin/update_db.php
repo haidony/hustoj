@@ -1,7 +1,6 @@
 <?php require("admin-header.php");
 
 if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
-	echo "<a href='../loginpage.php'>Please Login First!</a>";
 	exit(1);
 }?>
 <?php $tsql=Array();
@@ -257,6 +256,20 @@ $csql[55]="CREATE TABLE $DB_NAME.openai_task_queue (
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='异步任务队列-MyISAM版'; ";
 $tsql[56]="alter table $DB_NAME.openai_task_queue add column problem_id bigint not null default 0  after solution_id;";
 $csql[56]="";
+$tsql[57]="CREATE INDEX $DB_NAME.idx_contest_user_id ON solution(contest_id,user_id,solution_id);";
+$csql[57]="";
+$tsql[58]="CREATE INDEX $DB_NAME.idx_uid_pid ON solution(user_id,problem_id);";
+$csql[58]="";
+$tsql[59]="CREATE INDEX $DB_NAME.idx_uid_pid_res ON solution(user_id,problem_id,result);";
+$csql[59]="";
+$tsql[60]="CREATE INDEX $DB_NAME.idx_contest_result ON solution(contest_id,result);";
+$csql[60]="";
+$tsql[61]="CREATE INDEX $DB_NAME.idx_contest_num ON solution(contest_id,num,result);";
+$csql[61]="";
+$tsql[62]="ALTER TABLE $DB_NAME.solution ADD INDEX idx_cid_result_num_sid (contest_id,result,num,solution_id);";
+$csql[62]="";
+$tsql[63]="ALTER TABLE $DB_NAME.`users` ADD COLUMN `coin_earned` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '做题获得的积分', ADD COLUMN `coin_bonus` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '老师奖励的积分', ADD COLUMN `coin_spent` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '已消耗的积分';";
+$csql[63]="ALTER TABLE $DB_NAME.`problem` ADD COLUMN `coin` INT UNSIGNED NOT NULL DEFAULT 1 COMMENT 'AC此题可得的金币数' AFTER `defunct`;";
 
 // 删除6个月以前的非正确源码，优化数据库空间。
 // delete from source_code  where solution_id in (select solution_id from solution where result>4 and  in_date<date_sub(now(),interval 6 month) ); //

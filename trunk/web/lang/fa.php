@@ -10,10 +10,13 @@
 	$MSG_RECENT_CONTEST="Recent";
 	$MSG_LOGOUT="خروج";
 	$MSG_LOGIN="ورود";
+	$MSG_COOKIE_ERROR="کوکی منقضی یا نامعتبر";
 	$MSG_LOST_PASSWORD="Lost Password";
 	$MSG_REGISTER="عضویت";
 	$MSG_ADMIN="ادمین";
 	$MSG_SYSTEM="System";
+	$MSG_SERVICE_DISABLED="رابط برنامه‌نویسی فعال نیست";
+	$MSG_SETTINGS="System Settings";
 	$MSG_STANDING="جایگاه ها";
 	$MSG_STATISTICS="آمار";
 	$MSG_USERINFO="اصلاح اطلاعات";
@@ -109,6 +112,9 @@
 	$MSG_SCHOOL="مدرسه";
         $MSG_GROUP_NAME="Group";
 	$MSG_EMAIL="ایمیل";
+
+	$MSG_CANNOT_EMPTY="نمی تواند خالی باشد";
+	$MSG_WRONG_FORMAT="قالب نامعتبر است";
 	$MSG_REG_INFO="اطلاعات عضویت";
 	$MSG_VCODE="کد امنیتی";
         $MSG_ACTIVE_YOUR_ACCOUNT="Active Your Account ";
@@ -128,12 +134,14 @@
 	$MSG_Output= "خروجی";
 	$MSG_Sample_Input= "نمونه وردی";
 	$MSG_Sample_Output= "نمونه خروجی";
+	$MSG_Sample_Zip= "نمونه فشرده";
 	$MSG_Test_Input= "Test Input" ;
 	$MSG_Test_Output= "Test Output" ;
 	$MSG_NJ= "Normal Judger" ;
 	$MSG_SPJ= "Special Judger" ;
 	$MSG_RTJ= "Raw Text Judger" ;
-        $MSG_CLICK_VIEW_HINT="Click to View Spoiler";
+        	$MSG_INTERACT= "Interactive Judger" ;
+$MSG_CLICK_VIEW_HINT="Click to View Spoiler";
 	$MSG_HINT= "تذکر";
 	$MSG_Source= "منبع";
 	$MSG_Time_Limit="محدودیت زمانی";
@@ -253,6 +261,7 @@
   $MSG_TABLE_TRANSPOSE="Table Transpose";
 
   $MSG_HELP_SEEOJ="watch the front pages";
+  $MSG_HELP_SETTINGS="Modify system configuration parameters via web UI (booleans, text, numbers); sensitive items are protected";
   $MSG_HELP_ADD_NEWS="add news for the homepage";
   $MSG_HELP_NEWS_LIST="edit or shutdown published news";
   $MSG_HELP_USER_LIST="enable/disable user";
@@ -451,6 +460,23 @@
 	$MSG_BACK="Return to Last Page";
 	$MSG_NEXT_PAGE="Next Page";
 	$MSG_PREV_PAGE="Prev Page";
+
+	$MSG_ROLLING_RANK="رتبه غلتان";
+	$MSG_SIMILARITY="شباهت";
+	$MSG_NO_SUBMISSIONS="هنوز ارسالی نیست";
+	$MSG_NO_CONTACTS="بدون مخاطب";
+	$MSG_SELECT_CONTACT="لطفاً یک مخاطب انتخاب کنید";
+	$MSG_IP_EMAIL_REG_OVERLIMIT="آدرس IP یا ایمیل شما بیش از {$OJ_REG_SPEED} حساب ثبت کرده است، لطفاً بعداً دوباره تلاش کنید.";
+
+	$MSG_CONTEST_CLOSED="مسابقه پایان یافته";
+	$MSG_FILE_SUBMIT="ارسال فایل";
+	$MSG_NO_FREOPEN="نیاز به freopen نیست";
+	$MSG_OI_CONTEST_VIEWING="مسابقه OI در حال اجرا، امکان مشاهده نیست";
+	$MSG_ADMIN_NO_EMAIL_CONFIG="مدیر ایمیل را پیکربندی نکرده است";
+	$MSG_PLEASE_CONFIG_EMAIL="لطفاً $SMTP_USER را در db_info.inc.php پیکربندی کنید";
+	$MSG_STARRED_OF_MONTH="ستاره ماه";
+	$MSG_CORRECT_SUBMISSIONS="کل ارسال‌های صحیح";
+	$MSG_TOP_OF_PAGE="بالا";
  	//email
 	$MSG_SYS_WARN="System Warning!";
 	$MSG_IS_ROBOT="could be a robot , verify and disable it !";
@@ -474,3 +500,39 @@
   $MSG_FRIENDLY_L7="Enable discus";
   $MSG_FRIENDLY_L8="Allow download test data";
   $MSG_FRIENDLY_L9="Allow guest to submit";
+	$MSG_DAY="Day-Rank";
+	$MSG_HELP_BACKUP_DATABASE="Backup database, test data and images to problem 0 directory";
+	$MSG_HELP_USER_IMPORT="Import users";
+	$MSG_MARK="Mark";
+	$MSG_MONTH="Month-Rank";
+	$MSG_NO_MAIL_HERE="This OJ does not support internal mail.";
+	$MSG_REMOTE_JUDGING="Remote Judging";
+	$MSG_REMOTE_OJ="Remote OJ";
+	$MSG_REMOTE_PENDING="Remote Pending";
+	$MSG_REVIEW_CONTESTRANK="Review Rank";
+	$MSG_RP="Remote Pending";
+	$MSG_SUBMITTING="Submitting";
+	$MSG_WARNING_PASSWORD_SHORT="Password must be at least 6 characters!";
+	$MSG_WARNING_REPEAT_PASSWORD_DIFF="The two passwords do not match!";
+	$MSG_WARNING_USER_ID_SHORT="User ID must be at least 3 characters!";
+	$MSG_WEEK="Week-Rank";
+	$MSG_YEAR="Year-Rank";
+	$MSG_AI_CODE_SUGGESTION_SOURCE_BROWSER="Analyze my weak points and ask me a hint-like related question.";
+	$MSG_AI_CODE_SUGGESTION="Don't give the complete code. Just explain the problem cause and let me learn to fix it myself. Analyze my weak points and ask me a hint-like related question. End with encouragement or a cute remark.";
+	$MSG_AI_PROMPT_SYS="You are an experienced competitive programming expert who can help me understand error messages in simple, clear %s. If the user's output is empty in the comparison, they may not have considered handling multiple test cases and should use loops. %s Please be concise and save token usage.";
+	$MSG_AI_INVALID_PARAM="Invalid parameter";
+	$MSG_AI_PROMPT_USER_TITLE="Problem:";
+	$MSG_AI_PROMPT_USER_SOURCE="Source code:";
+	$MSG_AI_PROMPT_USER_ERROR="Error message:";
+  $MSG_BONUS="Bonus";
+  $MSG_COIN="Coin";
+  $MSG_COIN_BALANCE="Current ${MSG_COIN} Balance";
+  $MSG_COIN_BONUS="Teacher Bonus ${MSG_COIN}";
+  $MSG_COIN_EARNED="Earned ${MSG_COIN} from Solutions";
+  $MSG_COIN_SPENT="Spent ${MSG_COIN}";
+  $MSG_EARNED="Earned";
+  $MSG_FRIENDLY_B1="Disable Register,Force Login";
+  $MSG_NO_COIN="Insufficient ${MSG_COIN}";
+  $MSG_PAID="${MSG_COIN} Paid";
+  $MSG_SPENT="Spent";
+$MSG_NUM="#";

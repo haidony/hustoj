@@ -96,7 +96,7 @@
 
 </style>
 
-    <script src="<?php echo "$OJ_CDN_URL/include/"?>jquery-latest.js"></script>
+    <script src="<?php echo "$OJ_CDN_URL/template/syzoj/js/"?>jquery.min.js"></script>
 
 <!-- Scripts -->
 <script>
@@ -194,14 +194,16 @@
             <?php } ?>
 
             <div class="right menu">
-                <?php if(isset($_SESSION[$OJ_NAME.'_'.'user_id'])) { ?>
-                <a href="<?php echo $path_fix?>/userinfo.php?user=<?php echo $_SESSION[$OJ_NAME.'_'.'user_id']?>"
+                <?php if(isset($_SESSION[$OJ_NAME.'_'.'user_id'])) {
+                   
+                ?>
+                <a href="<?php echo $path_fix?>/userinfo.php?user=<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'user_id'])?>"
                     style="color: inherit; ">
                     <div class="ui simple dropdown item">
-                        <?php echo $_SESSION[$OJ_NAME.'_'.'user_id']; 
-                              if(!empty($_SESSION[$OJ_NAME.'_nick'])) echo "(".$_SESSION[$OJ_NAME.'_nick'].")";
-                              if(!empty($_SESSION[$OJ_NAME.'_group_name'])) echo "[".$_SESSION[$OJ_NAME.'_group_name']."]";
-                                      
+                        <?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'user_id']); 
+                              if(!empty($_SESSION[$OJ_NAME.'_nick'])) echo "(".htmlentities($_SESSION[$OJ_NAME.'_nick']).")";
+                              if(!empty($_SESSION[$OJ_NAME.'_group_name'])) echo "[".htmlentities($_SESSION[$OJ_NAME.'_group_name'])."]";
+                              if($coin>0) echo "💰️$coin";        
                         ?>
                         <i class="dropdown icon"></i>
                         <div class="menu">
@@ -209,7 +211,7 @@
                                 <a class="item" href="portal.php"><i class="tasks icon"></i><?php echo $MSG_TODO;?></a>
                                 <?php if ($OJ_SaaS_ENABLE){ ?>
                                 <?php if($_SERVER['HTTP_HOST']==$DOMAIN)
-                                        echo  "<a class='item' href='http://".  $_SESSION[$OJ_NAME.'_'.'user_id'].".$DOMAIN'><i class='globe icon' ></i>MyOJ</a>";?>
+                                        echo  "<a class='item' href='http://".htmlentities($_SESSION[$OJ_NAME.'_'.'user_id']).".$DOMAIN'><i class='globe icon' ></i>MyOJ</a>";?>
                                 <?php } ?>
                             <?php if(isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_'.'contest_creator'])||isset($_SESSION[$OJ_NAME.'_'.'user_adder'])||isset($_SESSION[$OJ_NAME.'_'.'password_setter'])||isset($_SESSION[$OJ_NAME.'_'.'problem_editor'])){ ?>
                             <a class="item" href="admin/"><i class="settings icon"></i><?php echo $MSG_ADMIN;?></a>

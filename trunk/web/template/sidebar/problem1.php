@@ -57,7 +57,7 @@
         require_once("include/set_get_key.php");
       ?>
 
-      [<a href="admin/problem_edit.php?id=<?php echo $id?>&getkey=<?php echo $_SESSION[$OJ_NAME.'_'.'getkey']?>" >Edit</a>]
+      [<a href="admin/problem_edit.php?id=<?php echo $id?>&getkey=<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8')?>" >Edit</a>]
       [<a href='javascript:phpfm(<?php echo $row['problem_id'];?>)'>TestData</a>]
 
     <?php
@@ -83,7 +83,7 @@
       echo "<h4>$MSG_Sample_Output</h4><pre class=content><span class=sampledata>".($soutput)."</span></pre><br>";
     }
 
-    echo "<div class=am-g>"
+    echo "<div class=am-g>";
 		echo "<div class=am><strong>$MSG_Sample_Input</strong><pre class=content><span class=sampledata>".($soutput)."</span></pre></div>";
 		echo "<div class=am><strong>$MSG_Sample_Output</strong><pre class=content><span class=sampledata>".($soutput)."</span></pre></div>";
 		echo "</div>"
@@ -118,7 +118,7 @@
       require_once("include/set_get_key.php");
     ?>
 
-    [<a href="admin/problem_edit.php?id=<?php echo $id?>&getkey=<?php echo $_SESSION[$OJ_NAME.'_'.'getkey']?>" >Edit</a>]
+    [<a href="admin/problem_edit.php?id=<?php echo $id?>&getkey=<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'], ENT_QUOTES, 'UTF-8')?>" >Edit</a>]
     [<a href='javascript:phpfm(<?php echo $row['problem_id'];?>)'>TestData</a>]
 
   <?php

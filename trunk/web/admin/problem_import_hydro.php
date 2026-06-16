@@ -3,7 +3,6 @@ require_once ("admin-header.php");
 require_once("../include/check_post_key.php");
 
 if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_problem_importer'])  )) {
-  echo "<a href='../loginpage.php'>Please Login First!</a>";
   exit(1);
 }
 
@@ -13,6 +12,30 @@ if (isset($OJ_LANG)) {
 
 require_once ("../include/const.inc.php");
 require_once ("../include/problem.php");
+
+// 检查 php-yaml 扩展是否安装（宝塔等环境默认未安装会导致 yaml_parse 失败）
+if (!function_exists('yaml_parse')) {
+  echo <<<HTML
+<div class="alert alert-danger" style="margin:20px;">
+  <h4>缺少 php-yaml 扩展</h4>
+  <p>当前 PHP 环境未安装 <code>php-yaml</code> 扩展，HydroOJ 格式导入功能无法使用。</p>
+  <p><strong>宝塔面板安装方法：</strong></p>
+  <ol>
+    <li>登录宝塔面板 → <code>软件商店</code> → 找到对应的 PHP 版本 → 点击 <code>设置</code></li>
+    <li>进入 <code>安装扩展</code> 标签页</li>
+    <li>找到 <code>yaml</code> 扩展，点击右侧 <code>安装</code></li>
+    <li>安装完成后点击 <code>重启 PHP</code></li>
+  </ol>
+  <p><strong>命令行安装（SSH）：</strong></p>
+  <pre>pecl install yaml
+echo "extension=yaml.so" > /etc/php/$(php -r 'echo PHP_VERSION;')/cli/conf.d/25-yaml.ini
+# 如使用宝塔，还需在宝塔面板中启用该扩展</pre>
+  <p>安装并启用扩展后，请重新导入题目。</p>
+</div>
+HTML;
+  exit(1);
+}
+
 function replaceLT($string) {
     // 正则表达式匹配两个美元符号包裹的内容
     $pattern = '/(\$.*?)(<)(.*?\$)/';
@@ -91,7 +114,7 @@ function mkpta($pid,$prepends,$node) {
 
 
 function import_dir($json) {
-  global $OJ_DATA,$OJ_SAE,$OJ_REDIS,$OJ_REDISSERVER,$OJ_REDISPORT,$OJ_REDISQNAME,$domain,$DOMAIN,$_SESSION;
+  global $OJ_DATA,$OJ_REDIS,$OJ_REDISSERVER,$OJ_REDISPORT,$OJ_REDISQNAME,$domain,$DOMAIN,$_SESSION;
   $qduoj_problem=json_decode($json);
   echo( $qduoj_problem->{'problem'}->{'title'})."<br>";
 
@@ -157,6 +180,10 @@ if ($_FILES["fps"]["error"] > 0) {
 
             if (basename($file_name) == "problem.yaml") {
                 $hydrop = yaml_parse($file_content);
+                if ($hydrop === false) {
+                    echo "<br><span style='color:red'>[YAML解析失败] 文件: " . htmlentities($file_name) . " 格式错误，请检查 YAML 语法。</span><br>";
+                    continue;
+                }
                 $title = $hydrop['title'];
                 $source = implode(" ", $hydrop['tag']);
                 echo "<hr>" . htmlentities($file_name . " $title $source");
@@ -164,7 +191,7 @@ if ($_FILES["fps"]["error"] > 0) {
                 if (!in_array($title, $inserted)) {
                     $pid = addproblem($title, 1, 128, $description, $input, $output, $sample_input, $sample_output, $hint, $source, $spj, $OJ_DATA);
                     mkdir($OJ_DATA . "/$pid/");
-                    echo htmlentities( basename(dirname($file_name))  ."$title- yaml <br>");
+                    echo htmlentities( basename(dirname($file_name))  ."$title- yaml" )."<br>";
                     array_push($inserted, basename(dirname($file_name)));
 
                     $sql = "INSERT INTO `privilege` (`user_id`,`rightstr`) VALUES(?,?)";
@@ -196,15 +223,20 @@ if ($_FILES["fps"]["error"] > 0) {
                     $sql = "INSERT INTO `privilege` (`user_id`,`rightstr`) VALUES(?,?)";
                     pdo_query($sql, $_SESSION[$OJ_NAME . '_' . 'user_id'], "p$pid");
                     $_SESSION[$OJ_NAME . '_' . "p$pid"] = true;
-                } else {
-                   // $sql = "UPDATE problem SET description=? WHERE problem_id=?";
-                   // pdo_query($sql, $description, $pid);
-                   //  echo "update $pid to $title <br>";
+                    echo "new PID:<a href='../problem.php?id=$pid'>" . htmlentities($title, ENT_QUOTES, "UTF-8") . "</a>";
+                } else if(in_array( basename(dirname($file_name)) , $inserted)) {
+                    $sql = "UPDATE problem SET description=? WHERE problem_id=?";
+                    pdo_query($sql, $description, $pid);
+                     echo "update $pid to $title <br>";
+                	echo " update PID:<a href='../problem.php?id=$pid'>" . htmlentities($title, ENT_QUOTES, "UTF-8") . "</a>";
                 }
 
-                echo "PID:<a href='../problem.php?id=$pid'>" . htmlentities($title, ENT_QUOTES, "UTF-8") . "</a>";
             } elseif (basename($file_name) == "config.yaml") {
                 $hydrop = yaml_parse($file_content);
+                if ($hydrop === false) {
+                    echo "<br><span style='color:red'>[YAML解析失败] 文件: " . htmlentities($file_name) . " 格式错误，请检查 YAML 语法。</span><br>";
+                    continue;
+                }
 
                 if ($hydrop['type'] == "objective") {
                     $type = "objective";
@@ -247,8 +279,13 @@ if ($_FILES["fps"]["error"] > 0) {
                         file_put_contents($OJ_DATA . "/$pid/output.name", $iofile . ".out\n");
                     }
 
+		    if($hydrop['type'] == "interactive") {
+			    $spj=3;
+			    if($time<=0) $time= 1;
+		    }else $spj=0;
+
                     if ($time > 0) {
-                        pdo_query("UPDATE problem SET time_limit=?, memory_limit=? WHERE problem_id=?", $time, $memory, $pid);
+                        pdo_query("UPDATE problem SET time_limit=?, memory_limit=?,spj=? WHERE problem_id=?", $time, $memory,$spj, $pid);
                     }
                 }
             } elseif ($pid != "" && strpos($file_path, "testdata") !== false && basename($file_name) != "testdata") {

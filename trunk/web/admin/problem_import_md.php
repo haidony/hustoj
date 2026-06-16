@@ -4,7 +4,6 @@ require_once ("admin-header.php");
 require_once("../include/check_post_key.php");
 
 if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_problem_importer'])  )) {
-  echo "<a href='../loginpage.php'>Please Login First!</a>";
   exit(1);
 }
 
@@ -78,7 +77,7 @@ function mkpta($pid,$prepends,$node) {
 
 
 function import_dir($json) {
-  global $OJ_DATA,$OJ_SAE,$OJ_REDIS,$OJ_REDISSERVER,$OJ_REDISPORT,$OJ_REDISQNAME,$domain,$DOMAIN;
+  global $OJ_DATA,$OJ_REDIS,$OJ_REDISSERVER,$OJ_REDISPORT,$OJ_REDISQNAME,$domain,$DOMAIN;
   $qduoj_problem=json_decode($json);
   echo( $qduoj_problem->{'problem'}->{'title'})."<br>";
 

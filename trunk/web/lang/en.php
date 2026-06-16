@@ -10,10 +10,13 @@
   	$MSG_RECENT_CONTEST="Recent";
 	$MSG_LOGOUT="Logout";
 	$MSG_LOGIN="Login";
+	$MSG_COOKIE_ERROR="Cookie expired or invalid";
 	$MSG_LOST_PASSWORD="Lost Password";
 	$MSG_REGISTER="Register";
 	$MSG_ADMIN="Admin";
 	$MSG_SYSTEM="System";
+	$MSG_SERVICE_DISABLED="API interface not enabled";
+	$MSG_SETTINGS="System Settings";
 	$MSG_STANDING="Standing";
 	$MSG_STATISTICS="Statistics";
 	$MSG_USERINFO="User Information";
@@ -115,6 +118,8 @@
 	$MSG_SCHOOL="School";
         $MSG_GROUP_NAME="Group";
 	$MSG_EMAIL="Email";
+	$MSG_CANNOT_EMPTY="cannot be empty";
+	$MSG_WRONG_FORMAT="format is invalid";
 	$MSG_REG_INFO="Register Information";
 	$MSG_VCODE="Verify Code";
         $MSG_ACTIVE_YOUR_ACCOUNT="Active Your Account ";
@@ -135,11 +140,13 @@
 	$MSG_Output= "Output" ;
 	$MSG_Sample_Input= "Sample Input" ;
 	$MSG_Sample_Output= "Sample Output" ;
+	$MSG_Sample_Zip= "Sample Zip" ;
 	$MSG_Test_Input= "Test Input" ;
 	$MSG_Test_Output= "Test Output" ;
 	$MSG_NJ= "Normal Judger" ;
 	$MSG_SPJ= "Special Judger" ;
 	$MSG_RTJ= "Raw Text Judger" ;
+	$MSG_INTERACT= "Interactive Judger" ;
         $MSG_CLICK_VIEW_HINT="Click to View Spoiler";
 	$MSG_HINT= "HINT" ;
 	$MSG_Source= "Source" ;
@@ -263,6 +270,7 @@
   $MSG_TABLE_TRANSPOSE="Table Transpose";
 
   $MSG_HELP_SEEOJ="watch the front pages";
+  $MSG_HELP_SETTINGS="Modify system configuration parameters via web UI (booleans, text, numbers); sensitive items are protected";
   $MSG_HELP_ADD_NEWS="add news for the homepage";
   $MSG_HELP_NEWS_LIST="edit or shutdown published news";
   $MSG_HELP_USER_LIST="enable/disable user";
@@ -299,7 +307,7 @@
 	$MSG_HELP_HUSTOJ="<sub><a target='_blank' href='https://github.com/zhblue/hustoj'><span class='glyphicon glyphicon-heart' aria-hidden='true'></span> Please give us a <span class='glyphicon glyphicon-star' aria-hidden='true'></span>Star @HUSTOJ Github!</a></sub>";
   $MSG_HELP_SPJ="<a href='https://cn.bing.com/search?q=hustoj+special+judge' target='_blank'>search hustoj special judge</a>for more details"; 
   $MSG_HELP_BALLOON_SCHOOL="School Field of the Printer/Balloon privileged Accout, will be used as filter in task list.";
-  $MSG_HRLP_BACKUP_DATABASE="Backup Database , TestData and Pictures to the 0 problem testdata directory";
+  $MSG_HELP_BACKUP_DATABASE="Backup Database , TestData and Pictures to the 0 problem testdata directory";
   $MSG_HELP_LEFT_EMPTY="If you don't want to modify, please left this empty.";
   $MSG_HELP_LOCAL_EMPTY="Left empty for local problem.";
   
@@ -466,6 +474,22 @@
 	$MSG_BACK="Return to Last Page";
 	$MSG_NEXT_PAGE="Next Page";
 	$MSG_PREV_PAGE="Prev Page";
+	$MSG_ROLLING_RANK="Rolling Rank";
+	$MSG_SIMILARITY="Similarity";
+	$MSG_NO_SUBMISSIONS="No submissions yet";
+	$MSG_NO_CONTACTS="No contacts";
+	$MSG_SELECT_CONTACT="Please select a contact";
+	$MSG_IP_EMAIL_REG_OVERLIMIT="Your IP address or Email has registered more than {$OJ_REG_SPEED} accounts, please try again later.";
+
+	$MSG_CONTEST_CLOSED="Contest has ended";
+	$MSG_FILE_SUBMIT="File Submit";
+	$MSG_NO_FREOPEN="No freopen needed";
+	$MSG_OI_CONTEST_VIEWING="OI contest in progress, cannot view";
+	$MSG_ADMIN_NO_EMAIL_CONFIG="Administrator has not configured email sending account, please contact admin or teacher to manually reset password.";
+	$MSG_PLEASE_CONFIG_EMAIL="Please configure \$SMTP_USER in db_info.inc.php to enable password recovery.";
+	$MSG_STARRED_OF_MONTH="Star of the Month";
+	$MSG_CORRECT_SUBMISSIONS="Total Correct Submissions";
+	$MSG_TOP_OF_PAGE="Top";
  	//email
 	$MSG_SYS_WARN="System Warning!";
 	$MSG_IS_ROBOT="could be a robot , verify and disable it !";
@@ -489,3 +513,36 @@
   $MSG_FRIENDLY_L7="Enable discus";
   $MSG_FRIENDLY_L8="Allow download test data";
   $MSG_FRIENDLY_L9="Allow guest to submit";
+	$MSG_HELP_BACKUP_DATABASE="Backup database, test data and images to problem 0 directory";
+	$MSG_HELP_USER_IMPORT="Import users";
+	$MSG_REMOTE_OJ="Remote OJ";
+	$MSG_AI_CODE_SUGGESTION_SOURCE_BROWSER="Analyze my weak points and ask me a hint-like related question.";
+	$MSG_AI_CODE_SUGGESTION="Don't give the complete code. Just explain the problem cause and let me learn to fix it myself. Analyze my weak points and ask me a hint-like related question. End with encouragement or a cute remark.";
+	$MSG_AI_PROMPT_SYS="You are an experienced competitive programming expert who can help me understand error messages in simple, clear %s. If the user's output is empty in the comparison, they may not have considered handling multiple test cases and should use loops. %s Please be concise and save token usage.";
+	$MSG_AI_INVALID_PARAM="Invalid parameter";
+	$MSG_AI_PROMPT_USER_TITLE="Problem:";
+	$MSG_AI_PROMPT_USER_SOURCE="Source code:";
+	$MSG_AI_PROMPT_USER_ERROR="Error message:";
+  $MSG_BONUS="Bonus";
+  $MSG_COIN="Coin";
+  $MSG_COIN_BALANCE="Current ${MSG_COIN} Balance";
+  $MSG_COIN_BONUS="Teacher Bonus ${MSG_COIN}";
+  $MSG_COIN_EARNED="Earned ${MSG_COIN} from Solutions";
+  $MSG_COIN_SPENT="Spent ${MSG_COIN}";
+  $MSG_EARNED="Earned";
+  $MSG_FRIENDLY_B1="Disable Register,Force Login";
+  $MSG_NO_COIN="Insufficient ${MSG_COIN}";
+  $MSG_PAID="${MSG_COIN} Paid";
+  $MSG_SPENT="Spent";
+  $MSG_BONUS="Bonus";
+  $MSG_COIN="Coin";
+  $MSG_COIN_BALANCE="Current ${MSG_COIN} Balance";
+  $MSG_COIN_BONUS="Teacher Bonus ${MSG_COIN}";
+  $MSG_COIN_EARNED="Earned ${MSG_COIN} from Solutions";
+  $MSG_COIN_SPENT="Spent ${MSG_COIN}";
+  $MSG_EARNED="Earned";
+  $MSG_FRIENDLY_B1="Disable Register,Force Login";
+  $MSG_NO_COIN="Insufficient ${MSG_COIN}";
+  $MSG_PAID="${MSG_COIN} Paid";
+  $MSG_SPENT="Spent";
+$MSG_NUM="#";

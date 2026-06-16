@@ -2,14 +2,30 @@
 ////////////////////////////Common head
 require_once('./include/db_info.inc.php');
 require_once('./include/my_func.inc.php');
+$id = intval($_GET['id']??"0");
+if(empty($OJ_DATA)) die();
+$zipname=$OJ_DATA."/".$id."/sample.zip";
+if(file_exists($zipname)){
+    header('Content-Type: application/zip;charset=utf8');
+    header('Content-disposition: attachment; filename=Sample_' . date('Y-m-d') . '.zip');
+    header('Content-Length: ' . filesize($zipname));
+    readfile($zipname);
+    die();
+}
 if ((!isset($OJ_DOWNLOAD)) || !$OJ_DOWNLOAD) {
     $view_errors = "Download Disabled!";
     require("template/" . $OJ_TEMPLATE . "/error.php");
     exit(0);
 
 }
+if($coin<=0){
+        $view_errors = "<h2> $MSG_NO_COIN </h2>";
+        require("template/" . $OJ_TEMPLATE . "/error.php");
+        exit(0);
+}
 $sid = intval($_GET['sid']);
 $name = basename($_GET['name'], ".out");
+$name = basename($name, ".in");
 $sql = "select problem_id,contest_id,user_id from solution where solution_id=?";
 $data = pdo_query($sql, $sid);
 //var_dump($sql);
@@ -45,7 +61,7 @@ if (!empty($data)) {
     $infile = "$OJ_DATA/$pid/$name.in";
     $outfile = "$OJ_DATA/$pid/$name.out";
 
-    $zipname = tempnam(__dir__ . '/upload', '');
+    $zipname = tempnam(sys_get_temp_dir(), 'download.zip');
     $zip = new ZipArchive();
 
     if ($zip->open($zipname, ZIPARCHIVE::CREATE) !== TRUE) {
@@ -53,18 +69,19 @@ if (!empty($data)) {
     }
     $files = [$infile, $outfile];
 
-    $zip->open($zipname, ZipArchive::CREATE);
     foreach ($files as $file) {
-
-        $fileContent = file_get_contents($file);
-        $file = iconv('utf-8', 'GBK', basename($file));
-        $zip->addFromString($file, $fileContent);
+	if(!file_exists($file)) continue;
+        $entryname = basename($file);
+	if(!($zip->addFile($file, $entryname, 0,0, ZipArchive::FL_OVERWRITE | ZipArchive::FL_ENC_UTF_8))){
+		echo htmlentities($infile);
+		exit();
+	}
     }
     $zip->close();
-
     header('Content-Type: application/zip;charset=utf8');
     header('Content-disposition: attachment; filename=' . $name . date('Y-m-d') . '.zip');
     header('Content-Length: ' . filesize($zipname));
+    ob_end_flush();
     readfile($zipname);
     unlink($zipname);
     die();

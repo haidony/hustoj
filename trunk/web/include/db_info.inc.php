@@ -28,14 +28,13 @@ static  $OJ_LANGMASK=33554356; //掩码计算器:https://pigeon-developer.github
 static  $OJ_ACE_EDITOR=true;  // 是否启用有高亮提示的提交代码输入框
 static  $OJ_AUTO_SHARE=false; //true: 设为true则通过的题目可在统计页查看其他人代码.
 static  $OJ_CSS="white.css";  // bing.css | kawai.css | black.css | blue.css | green.css | hznu.css
-static  $OJ_SAE=false; //使用新浪引擎
 static  $OJ_VCODE=false;  //验证码
 static 	$OJ_REG_SPEED=60 ; //限制每小时同ip注册个数，0不限制
 static  $OJ_APPENDCODE=true;  // 代码预定模板
 static  $OJ_CE_PENALTY=false;  // 编译错误是否罚时
 static  $OJ_PRINTER=false;  //启用打印服务
 static  $OJ_MAIL=false; //内邮
-static  $OJ_SUOJIN=true; //自动检测缩减规范
+static  $OJ_INDENT=true; //自动检测缩减规范
 static  $OJ_MARK="mark"; // "mark" 显示正确得分， "percent" 显示错误比率
 static  $OJ_MEMCACHE=false;  //使用内存缓存
 static  $OJ_MEMSERVER="127.0.0.1";
@@ -88,6 +87,7 @@ static  $OJ_FRIENDLY_LEVEL=1; //系统友好级别，暂定0-9级，级别越高
 static  $OJ_FREE_PRACTICE=false; //自由练习，不受比赛作业用题限制
 static  $OJ_SUBMIT_COOLDOWN_TIME=10; //提交冷却时间，连续两次提交的最小间隔，单位秒。
 static  $OJ_POISON_BOT_COUNT=10; //给机器人账号投毒的起始AC数。例如设为10，则认为一个账号对某个题提交了10次正确之后还在提交，就是机器人行为，开始给出随机答复。
+static  $OJ_NICK_IMMUTABLE=false; //改为true,则非管理员不能修改自己的昵称，管理员可以在后台用户列表双击修改昵称。
 static  $OJ_MARKDOWN="marked.js"; // marked.js/markdown-it 二选一，开启后在后台编辑题目时默认为源码模式，用[md] # Markdown [/md] 格式插入markdown代码, 如果需要用到[]也可以用<div class='md'> </div>。
 static  $OJ_INDEX_NEWS_TITLE='HelloWorld!';   // 在syzoj的首页显示哪一篇标题的文章（可以有多个相同标题）
 static  $OJ_DIV_FILTER=false;   // 过滤题面中的div，修复显示异常，特别是来自其他OJ系统的题面。
@@ -96,7 +96,7 @@ static  $OJ_REMOTE_JUDGE=false; //是否启用Remote Judge ，启用哪些模块
 static  $OJ_NO_CONTEST_WATCHER=false ; //是否禁止无权限用户观战私有比赛
 static  $OJ_CONTEST_TOTAL_100=false; //是否让比赛按100分计分
 static  $OJ_OLD_FASHINED=false; //是否在状态页的编辑按钮、管理页的预览模式等方面保留原始版本的习惯。
-static  $OJ_AI_HTML=false; // 若想开启AI链接，可设为 '<a class="desktop-only item" onclick="window.open(\'http://ai.hustoj.com\', \'_blank\',\'width=600,height=850,left=\' + (window.screen.width-600)  + \',top=0,toolbar=no,menubar=no,location=no,status=no,resizable=yes\');"><i class="help icon"></i> 问问狗蛋</a>';
+static  $OJ_AI_HTML=false; // 若想开启AI链接，可设为 '<a class="desktop-only item" onclick="window.open(\'https://chat.qwen.ai/\', \'_blank\',\'width=600,height=850,left=\' + (window.screen.width-600)  + \',top=0,toolbar=no,menubar=no,location=no,status=no,resizable=yes\');"><i class="help icon"></i> 问问狗蛋</a>';
 static  $OJ_PUBLIC_STATUS=true; //是否公开所有人的判题结果,设为false则除source_browser外，其他人只能看到自己提交的记录。
 static  $OJ_FANCY_RESULT=false; //是否在AC时显示fancy.php里的动画
 static  $OJ_FANCY_MP3='http://cdn.hustoj.com/mp3.php'; // 答案正确时的音效

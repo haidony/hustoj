@@ -3,7 +3,6 @@ require_once ("admin-header.php");
 require_once("../include/check_post_key.php");
 
 if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_problem_importer']))) {
-  echo "<a href='../loginpage.php'>Please Login First!</a>";
   exit(1);
 }
 
@@ -132,7 +131,7 @@ function get_extension($file) {
 }
 
 function import_fps($tempfile) {
-  global $OJ_DATA,$OJ_SAE,$OJ_REDIS,$OJ_REDISSERVER,$OJ_REDISPORT,$OJ_REDISQNAME,$domain,$DOMAIN,$OJ_NAME,$OJ_REMOTE_JUDGE;
+  global $OJ_DATA,$OJ_REDIS,$OJ_REDISSERVER,$OJ_REDISPORT,$OJ_REDISQNAME,$domain,$DOMAIN,$OJ_NAME,$OJ_REMOTE_JUDGE;
   $xmlDoc = simplexml_load_file($tempfile, 'SimpleXMLElement', LIBXML_PARSEHUGE);
   $searchNodes = $xmlDoc->xpath("/fps/item");
   $spid = 0;
@@ -167,6 +166,7 @@ function import_fps($tempfile) {
     $hint = getValue ($searchNode,'hint');
     $source = getValue ($searchNode,'source');				
     $spjcode = getValue ($searchNode,'spj');
+    $interactorcode = getValue ($searchNode,'interactor');
     $remote_oj= trim((string)getValue ($searchNode,'remote_oj'));
     $remote_id= trim((string)getValue ($searchNode,'remote_id'));
  
@@ -174,6 +174,8 @@ function import_fps($tempfile) {
     $tpjcode = getValue ($searchNode,'tpj');
     if($tpjcode) $tpjlang=getAttribute($searchNode,'tpj','language');
     $spj = (trim($spjcode)||trim($tpjcode))?1:0;
+    if(!empty($interactorcode)) $spj=3;
+
     if((isset($spjlang) && $spjlang=="Text")||(isset($tpjlang) && $tpjlang=="Text")) $spj=2;
     if(hasRemoteProblem($remote_oj,$remote_id)){
    	$sql="update problem set title=?,time_limit=?,memory_limit=?,description=?,input=?,output=?,sample_input=?,sample_output=?,hint=?,source=?,spj=? where remote_oj=? and remote_id=?";
@@ -195,6 +197,9 @@ function import_fps($tempfile) {
       if ($spid==0)
       	$spid = $pid;
       $sql = "INSERT INTO `privilege` (`user_id`,`rightstr`) VALUES(?,?)";
+	  $user_id=empty($_POST['user_id'])?$_SESSION[$OJ_NAME.'_'.'user_id']:$_POST['user_id'];
+      pdo_query($sql, $user_id, "p$pid");
+
       pdo_query($sql, $_SESSION[$OJ_NAME.'_'.'user_id'], "p$pid");
       $_SESSION[$OJ_NAME.'_'."p$pid"] = true;
 
@@ -204,7 +209,7 @@ function import_fps($tempfile) {
       if (strlen($sample_input)) mkdata($pid,"sample.in",$sample_input,$OJ_DATA);
       if (strlen($sample_output)) mkdata($pid,"sample.out",$sample_output,$OJ_DATA);
 
-      //if(!isset($OJ_SAE)||!$OJ_SAE){
+     
       $testinputs = $searchNode->children()->test_input;
       $testno = 0;
 
@@ -263,11 +268,7 @@ function import_fps($tempfile) {
 	//新文件名
 	$new_file_name = date("YmdHis") . '_' . rand(10000, 99999) . '.' . $ext;
 	$newpath = $save_path."/$pid"."_".$testno."_".$new_file_name;
-         if ($OJ_SAE)
-            $newpath = "saestor://web/upload/".$newpath;
-	 else
-            $newpath="../upload/".$newpath;
-		
+    $newpath="../upload/".$newpath;
           image_save_file($newpath,$base64);
           $sql = "UPDATE problem SET description=replace(description,?,?) WHERE problem_id=?";  
           pdo_query($sql,$src,$newpath,$pid);
@@ -284,7 +285,13 @@ function import_fps($tempfile) {
         }
       }
 
-      if (!isset($OJ_SAE) || !$OJ_SAE) {
+    
+	if($interactorcode){
+		  $fp = fopen("$basedir/interactor.cc","w");
+		  fputs($fp, $interactorcode);
+		  fclose($fp);
+		  $spj=3;
+	}
         if ($spj==1) {
 		if($spjcode){
 		  if($spjlang=="C++"){
@@ -330,7 +337,7 @@ function import_fps($tempfile) {
 		  
 	  }
         }
-      }
+      
 
       $solutions = $searchNode->children()->solution;
 

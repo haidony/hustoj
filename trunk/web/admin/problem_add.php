@@ -2,7 +2,6 @@
 require_once ("admin-header.php");
 require_once("../include/check_post_key.php");
 if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'contest_creator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']))) {
-  echo "<a href='../loginpage.php'>Please Login First!</a>";
   exit(1);
 }
 
@@ -75,6 +74,9 @@ $output = ($output);
 $hint = ($hint);
 //echo "->".$OJ_DATA."<-"; 
 $pid = addproblem($title, $time_limit, $memory_limit, $description, $input, $output, $sample_input, $sample_output, $hint, $source, $spj, $OJ_DATA);
+$coin = intval($_POST['coin'] ?? 1);
+$sql = "UPDATE problem SET coin=? WHERE problem_id=?";
+pdo_query($sql, $coin, $pid);
 $basedir = "$OJ_DATA/$pid";
 mkdir($basedir);
 if(strlen($sample_output) && !strlen($sample_input)) $sample_input = "0";

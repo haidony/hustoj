@@ -4,7 +4,6 @@ require_once("admin-header.php");
 require_once("../include/my_func.inc.php");
 
 if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']))) {
-  echo "<a href='../loginpage.php'>Please Login First!</a>";
   exit(1);
 }
 ?>
@@ -41,6 +40,16 @@ include_once("kindeditor.php") ;
       ?>
 
       <input type=hidden name=problem_id value='<?php echo $row['problem_id']?>'>
+  <div class="ui toggle checkbox">
+        <input type="checkbox" id="preview-toggle" checked>
+        <label for="preview-toggle">题目预览</label>
+  </div>
+        &nbsp;&nbsp;
+  <div class="ui toggle checkbox">
+        <input type="checkbox" id="full-toggle" checked>
+        <label for="full-toggle">完整结构</label>
+  </div>
+
       <p align=left>
         <center>
           <h3>
@@ -49,16 +58,18 @@ include_once("kindeditor.php") ;
         </center>
       </p>
         <p align=left>
-          <?php echo $MSG_Time_Limit?>
+          <?php echo $MSG_Time_Limit; ?>
           <input class="input input-mini" type=number min="0.001" max="300" step="0.001" name=time_limit size=20 value="<?php echo $row['time_limit']?>"> sec
-          <?php echo $MSG_Memory_Limit?>
+          <?php echo $MSG_Memory_Limit; ?>
           <input class="input input-mini" type=number min="1" max="1024" step="1" name=memory_limit size=20 value="<?php echo $row['memory_limit']?>"> MiB
+          <?php echo $MSG_COIN; ?>
+          <input class="input input-mini" type=number min="0" max="9999" step="1" name=coin size=20 value="<?php echo intval($row['coin'] ?? 1)?>">
         </p>
       <p align=left>
         <?php echo "<h4>".$MSG_Description."</h4>"?>
-        <textarea class="kindeditor" rows=13 name=description cols=80><?php echo htmlentities($row['description'],ENT_QUOTES,"UTF-8")?></textarea><br>
+        <textarea class="kindeditor" rows=33 name=description cols=80><?php echo htmlentities($row['description'],ENT_QUOTES,"UTF-8")?></textarea><br>
       </p>
-
+<span class="full" >
       <p align=left>
         <?php echo "<h4>".$MSG_Input."</h4>"?>
         <textarea class="kindeditor" rows=13 name=input cols=80><?php echo htmlentities($row['input'],ENT_QUOTES,"UTF-8")?></textarea><br>
@@ -83,13 +94,14 @@ include_once("kindeditor.php") ;
         <?php echo "<h4>".$MSG_HINT."</h4>"?>
         <textarea class="kindeditor" rows=13 name=hint cols=80><?php echo htmlentities($row['hint'],ENT_QUOTES,"UTF-8")?></textarea><br>
       </p>
-
+</span>
       <p>
         <?php echo "<h4>".$MSG_SPJ."</h4>"?>
         <?php echo "(".$MSG_HELP_SPJ.")"?><br>
         <input type=radio name=spj value='0' <?php echo $row['spj']=="0"?"checked":""?> title='Normal Judger'><?php echo $MSG_NJ?><br>
         <input type=radio name=spj value='1' <?php echo $row['spj']=="1"?"checked":""?> title='Special Judger'><?php echo $MSG_SPJ?><br>
         <input type=radio name=spj value='2' <?php echo $row['spj']=="2"?"checked":""?> title='Raw Text Judger' ><?php echo $MSG_RTJ?><br>
+		<input type=radio name=spj value='3' <?php echo $row['spj']=="3"?"checked":""?> title='Interactive Judger' ><?php echo $MSG_INTERACT?><br>
       </p>
 
       <p align=left>
@@ -111,6 +123,22 @@ include_once("kindeditor.php") ;
 
 <script src="<?php echo $OJ_CDN_URL."/template/bs3/"?>marked.min.js"></script>
 <script>
+function untransform() {
+    console.log("预览关闭");
+    // 恢复原始的 #main 元素样式
+    let main = $("#main");
+    main.addClass("padding");
+    main.css("width", "");
+    main.css("margin-left", "");
+
+    // 移除预览的 iframe
+    $("#preview").remove();
+
+  
+    // 移除同步事件
+    $("input").off('keyup', sync);
+    $("textarea").off('keyup', sync);
+}
   function transform(){
         let height=document.body.clientHeight;
         let width=parseInt(document.body.clientWidth*0.6);
@@ -184,8 +212,33 @@ include_once("kindeditor.php") ;
 	if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
   }
   $(document).ready(function(){
-  	 <?php if (!(isset($OJ_OLD_FASHINED) && $OJ_OLD_FASHINED ) ) echo " transform();" ?>
   
+            // 默认开启预览功能
+           <?php if (!(isset($OJ_OLD_FASHINED) && $OJ_OLD_FASHINED )) echo " transform();" ?>
+            
+            // 监听checkbox的点击事件
+            $('#preview-toggle').change(function() {
+                if(this.checked) {
+                    transform();
+                } else {
+                    // 假设这里是关闭预览的函数
+                    untransform();
+                }
+            });
+            $('#full-toggle').change(function() {
+		$(".full").toggle();
+                if(this.checked) {
+		    if($("textarea").eq(3).val().trim()=="") $("textarea").eq(2).val("<span class='md'>\n</span>");
+		    if($("textarea").eq(5).val().trim()=="") $("textarea").eq(4).val("<span class='md'>\n</span>");
+		    if($("textarea").eq(9).val().trim()=="") $("textarea").eq(8).val("<span class='md'>\n</span>");
+		    console.log("trim["+$("textarea").eq(8).val()+"]");
+                } else {
+		    if($("textarea").eq(3).val().trim()=="<span class='md'>\n</span>") $("textarea").eq(2).val("");
+		    if($("textarea").eq(5).val().trim()=="<span class='md'>\n</span>") $("textarea").eq(4).val("");
+		    if($("textarea").eq(9).val().trim()=="<span class='md'>\n</span>") $("textarea").eq(8).val("");
+		    console.log("trim["+$("textarea").eq(8).val()+"]");
+                }
+            });
   }); 
 </script>
     <?php
@@ -278,11 +331,12 @@ include_once("kindeditor.php") ;
 
       $spj = intval($spj);
 
-      $sql = "UPDATE `problem` SET `title`=?,`time_limit`=?,`memory_limit`=?, `description`=?,`input`=?,`output`=?,`sample_input`=?,`sample_output`=?,`hint`=?,`source`=?,`spj`=?,remote_oj=?,remote_id=?,`in_date`=NOW() WHERE `problem_id`=?";
+      $sql = "UPDATE `problem` SET `title`=?,`time_limit`=?,`memory_limit`=?, `description`=?,`input`=?,`output`=?,`sample_input`=?,`sample_output`=?,`hint`=?,`source`=?,`spj`=?,remote_oj=?,remote_id=?,`in_date`=NOW(),`coin`=? WHERE `problem_id`=?";
 
       //echo "SQL: " . $sql . "<br>";
       //echo "Params: remote_oj=[$remote_oj] (" . strlen($remote_oj) . "), remote_id=[$remote_id] (" . strlen($remote_id) . ")<br>"; 
-      @pdo_query($sql,$title,$time_limit,$memory_limit,$description,$input,$output,$sample_input,$sample_output,$hint,$source,$spj,$remote_oj,$remote_id,$id);
+      $coin = intval($_POST['coin'] ?? 1);
+      @pdo_query($sql,$title,$time_limit,$memory_limit,$description,$input,$output,$sample_input,$sample_output,$hint,$source,$spj,$remote_oj,$remote_id,$coin,$id);
   
       echo "Edit OK!<br>";
       echo "<a href='../problem.php?id=$id'>See The Problem!</a>";

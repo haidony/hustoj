@@ -1,8 +1,7 @@
 <?php
-ini_set("display_errors", "On");  //set this to "On" for debugging  ,especially when no reason blank shows up.
+ini_set("display_errors", "Off");  // 生产环境应关闭调试
 require_once ("admin-header.php");
 if (!(isset($_SESSION[$OJ_NAME . '_' . 'administrator']) || isset($_SESSION[$OJ_NAME . '_problem_importer']))) {
-    echo "<a href='../loginpage.php'>Please Login First!</a>";
     exit(1);
 }
 if (isset($OJ_LANG)) {
@@ -19,6 +18,7 @@ function get_extension($file) {
 }
 function import_user($filename) {
     global $OJ_EXPIRY_DAYS,$MSG_EXPIRY_DATE;
+	if(!isset($OJ_EXPIRY_DAYS)) $OJ_EXPIRY_DAYS=365;
     $check=false;
     $expire=false;
     if (($h = fopen("{$filename}", "r")) !== FALSE) {

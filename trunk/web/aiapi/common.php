@@ -3,39 +3,16 @@ if(basename($_SERVER['PHP_SELF'])!=="cron.php"){
 
 	$http_referer =basename(parse_url( $_SERVER['HTTP_REFERER'])['path']);
 	if((isset($_SESSION[$OJ_NAME.'_administrator'])|| isset($_SESSION[$OJ_NAME.'_problem_editor']) ) ){
-		    $role="有20年Linux运维经验的网络工程师";
 			$keyword="Linux运维";
-			if( basename($http_referer)=="news_add_page.php"){
+		if( basename($http_referer)=="news_add_page.php"){
 				$title=$_GET['title'];
-				$prompt_sys="角色设定 (Persona)
-	你是一位拥有10年教学经验、$role。你熟悉很多不同的实用技巧，可以轻易的想出一个有趣的题目或者根据已有的题目写一篇公众号。
-	# Role
-	你是一位拥有10年以上实战经验的 Linux 高级运维架构师与技术博主。你精通内核调优、自动化运维、云原生架构及安全加固。
-
-	# Task
-	你的任务是根据用户的要求，构思并提供若干个高质量、具有实战意义的 Linux 运维文章主题。
-
-	# Constraints
-	1. 深度与广度结合：主题需涵盖从基础命令技巧、复杂排错案例、生产环境优化到前沿的 DevSecOps 实践。
-	2. 随机性与多样性：每次生成的主题应跨越不同的技术维度（网络、磁盘I/O、容器化、Shell脚本、监控告警等）。
-	3. 风格要求：标题要专业且具有吸引力（类似于技术社区的精品帖），并附带简短的内容大纲。
-	4. 禁止空洞：避免生成“Linux 基础入门”这种过于宽泛的主题，必须聚焦于具体的痛点或进阶场景。
-
-	";
-			if($title==""){
-				$prompt_sys.="你可以想出一些有趣的标题。你言简意赅，只做非常简练的回答，不做任何解释。这个标题不会包含任何的markdown标记,长度不要超过30字符,可以随机的采用某一句诗词或者游戏的名字，或者上市公司的简称，用广为人知的梗替换诗句中的名词。";
-				$prompt_user="想一个$keyword的吸引人的标题,随机挑选一个$keyword学习主题，不局限于某种算法，只要一个标题，不要多余的解释，只要标题，不要超过20个字" ;
-			}else{
-				$prompt_sys.="
-	# Output Format
-	请按以下格式输出：
-	### [主题标题]
-	- **核心技术栈**：(例如: eBPF, Prometheus, Ansible)
-	- **目标读者**：(初级/中级/高级运维)
-	- **内容要点**：(3-4个核心知识点)";
-				$prompt_user="写一篇$keyword公众号文，题目是:".$title ."，不要多余的解释,不要'好的，这是你要的....'，我需要直接复制粘贴到公众号后台中使用,所以只需要文章本身，从$title\n--开始";
-
-			}
+				$prompt_sys=file_get_contents(dirname(__FILE__)."/news.md"); 
+				if($title==""){
+					$prompt_sys.="你可以想出一些有趣的标题。你言简意赅，只做非常简练的回答，不做任何解释。这个标题不会包含任何的markdown标记,长度不要超过30字符,可以随机的采用某一句诗词或者游戏的名字，或者上市公司的简称，用广为人知的梗替换诗句中的名词。";
+					$prompt_user="想一个$keyword的吸引人的标题,随机挑选一个$keyword学习主题，不局限于某种算法，只要一个标题，不要多余的解释，只要标题，不要超过20个字" ;
+				}else{
+					$prompt_user="写一篇$keyword公众号文，题目是:".$title ."，不要多余的解释,不要'好的，这是你要的....'，我需要直接复制粘贴到公众号后台中使用,所以只需要文章本身，从$title\n--开始";
+				}
 		}else if(str_starts_with( basename($http_referer),"phpfm.php")|| str_starts_with( basename($http_referer),"submitpage.php") ){
 		$table=false;
 		$pid=intval($_GET['pid']);
@@ -95,11 +72,11 @@ if(basename($_SERVER['PHP_SELF'])!=="cron.php"){
 		}
 
 		if(isset($_SESSION[$OJ_NAME."_source_browser"])){
-			$code_suggestion="分析我可能薄弱的知识点，问我一个提示性的相关问题。";
+			$code_suggestion=$MSG_AI_CODE_SUGGESTION_SOURCE_BROWSER;
 		}else{
-			$code_suggestion="不要直接给出完整代码,只给出问题原因,让我自己学习修改。分析我可能薄弱的知识点，问我一个提示性的相关问题，最后说一句鼓励或安慰的话，卖个萌。";
+			$code_suggestion=$MSG_AI_CODE_SUGGESTION;
 		}
-		$prompt_sys="你是一个经验丰富的信息学奥赛编程高手，能帮我用简单清晰的中文，解释我看不懂的报错信息。如果对比中用户的输出为空，可能是没有考虑到多组输入的情况，应该使用循环处理。$code_suggestion 请尽量言简意赅，节省token消耗。";
+		$prompt_sys=sprintf($MSG_AI_PROMPT_SYS,$code_suggestion);
 		 
 		$sid=intval($_GET['sid']);
 		$solution=pdo_query("select user_id,problem_id from solution where solution_id=?",$sid)[0];
@@ -107,7 +84,7 @@ if(basename($_SERVER['PHP_SELF'])!=="cron.php"){
 		$problem_id=$solution[1];
 
 		if(!(isset($_SESSION[$OJ_NAME."_source_browser"])|| $user_id==$_SESSION[$OJ_NAME."_user_id"] )){
-			echo "非法参数";
+			echo $MSG_AI_INVALID_PARAM;
 			exit();
 		}
 		$sql="SELECT `source` FROM `source_code_user` WHERE `solution_id`=?";
@@ -116,7 +93,7 @@ if(basename($_SERVER['PHP_SELF'])!=="cron.php"){
 			$row=$result[0];
 			$source=$row[0];
 		}else{
-			echo "非法参数";
+			echo $MSG_AI_INVALID_PARAM;
 			exit();
 		}
 		$sql="SELECT `error` FROM `$table` WHERE `solution_id`=?";
@@ -125,7 +102,7 @@ if(basename($_SERVER['PHP_SELF'])!=="cron.php"){
 			$row=$result[0];
 			$ceinfo=$row[0];
 		}else{
-			echo "非法参数";
+			echo $MSG_AI_INVALID_PARAM;
 			exit();
 		}
 		$sql="select answer from solution_ai_answer where solution_id=? ";
@@ -134,8 +111,8 @@ if(basename($_SERVER['PHP_SELF'])!=="cron.php"){
 			echo htmlentities($answer[0][0]);
 			exit();
 		}
-		$problem=pdo_query("select concat('<br>\n## 题目描述<br>\n\n',description,'<br>\n\n## 输入<br>\n\n',input,'<br>\n\n## 输出<br>\n\n',output,'<br>\n\n## 样例输入<br>\n',sample_input,'<br>\n\n## 样例输出<br>\n',sample_output,'<br>\n## 提示<br>\n',hint) from problem where problem_id=?",$problem_id)[0][0];
-		$prompt_user="题目是:<br>\n".$problem."<br>\n源代码是:\n\n<pre>\n".htmlentities($source)."\n</pre>\n报错信息是:\n\n<pre>\n".htmlentities($ceinfo)."\n</pre>";
+		$problem=pdo_query("select concat('<br>\n## $MSG_Description <br>\n\n',description,'<br>\n\n## $MSG_Input<br>\n\n',input,'<br>\n\n## $MSG_Output <br>\n\n',output,'<br>\n\n## $MSG_Sample_Input <br>\n',sample_input,'<br>\n\n## $MSG_Sample_Output <br>\n',sample_output,'<br>\n##  $MSG_HINT <br>\n',hint) from problem where problem_id=?",$problem_id)[0][0];
+		$prompt_user="$MSG_AI_PROMPT_USER_TITLE<br>\n".$problem."<br>\n$MSG_AI_PROMPT_USER_SOURCE\n<pre>\n".htmlentities($source)."\n</pre>\n$MSG_AI_PROMPT_USER_ERROR\n<pre>\n".htmlentities($ceinfo)."\n</pre>";
 
 	}
 
@@ -153,7 +130,8 @@ if(basename($_SERVER['PHP_SELF'])!=="cron.php"){
 		    "role" => "user",
 		    "content" => $prompt_user 
 		]
-	    ]
+	    ],
+		"enable_thinking" => false
 	];
 	if(isset($temperature)) 
 		$data["temperature"] = $temperature;   
@@ -161,7 +139,7 @@ if(basename($_SERVER['PHP_SELF'])!=="cron.php"){
 	if(!isset($sid)) $sid=0;
 	if(!isset($pid)) $pid=0;  // alter table openai_task_queue add column problem_id bigint not null default 0 after solution_id;
 
-	$check_sql="SELECT id FROM openai_task_queue WHERE user_id=? AND task_type=? AND solution_id=? AND problem_id=? AND status IN (0,1) AND update_date > DATE_SUB(NOW(), INTERVAL 10 MINUTE)";
+	$check_sql="SELECT id FROM openai_task_queue WHERE user_id=? AND task_type=? AND solution_id=? AND problem_id=? AND status IN (0,1) AND update_date > DATE_SUB(NOW(), INTERVAL 1 MINUTE)";
 	$check_result=pdo_query($check_sql,$_SESSION[$OJ_NAME.'_user_id'],basename($http_referer),$sid,$pid);
 	if($check_result[0][0] > 0){
 			$insert_id = $check_result[0][0];  // 重复的请求直接返回id

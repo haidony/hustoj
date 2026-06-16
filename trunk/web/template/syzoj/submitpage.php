@@ -77,7 +77,7 @@ echo"<option value=$i ".( $lastlang==$i?"selected":"").">
 <button  id="Submit" type="button" class="ui primary icon button"  onclick="do_submit();"><?php echo $MSG_SUBMIT?></button> 
 <label id="countDown" ></label>
 <?php if (isset($OJ_ENCODE_SUBMIT)&&$OJ_ENCODE_SUBMIT){?>
-<input class="btn btn-success" title="WAF gives you reset ? try this." type=button value="Encoded <?php echo $MSG_SUBMIT?>"  onclick="encoded_submit();">
+<input id="Encoded" class="btn btn-success" title="WAF gives you reset ? try this." type=button value="Encoded <?php echo $MSG_SUBMIT?>" >
 <input type=hidden id="encoded_submit_mark" name="reverse2" value="reverse"/>
 <?php }?>
 <?php if (isset($_SESSION[$OJ_NAME.'_administrator'])){?>
@@ -147,7 +147,7 @@ echo"<option value=$i ".( $lastlang==$i?"selected":"").">
         </style>
          <div class="row">
             <div class="column" style="display: flex;">
-<?php if ( isset($OJ_TEST_RUN) && $OJ_TEST_RUN && $spj<=1 && !$solution_name  ){?>
+<?php if ( isset($OJ_TEST_RUN) && $OJ_TEST_RUN && $spj!=2 && !$solution_name  ){?>
 <div style="
    
      margin-left: 60px;
@@ -184,7 +184,7 @@ echo"<option value=$i ".( $lastlang==$i?"selected":"").">
 	<span id='reinfo' style="display:none"></span>
    </div>
 <?php }	 ?>
-<?php if (isset($OJ_TEST_RUN)&&$OJ_TEST_RUN && $spj<=1 && !$solution_name  ){?>
+<?php if (isset($OJ_TEST_RUN)&&$OJ_TEST_RUN && $spj!=2 && !$solution_name  ){?>
         <!--运行按钮-->
             <input style="
              margin-top: 30px;
@@ -234,7 +234,7 @@ function removeContentBeforeSeparator(text) {
     return text;
 }
 function parseToCompactCards(data) {
-	console.log(data);
+	//console.log(data);
 	data=removeContentBeforeSeparator(data);
 	const lines = data.trim().split('\n');
 	const headers = lines[0].split('|');
@@ -460,7 +460,17 @@ function encoded_submit(){
 	}
 //      source.value=source.value.split("").reverse().join("");
 //      alert(source.value);
+<?php if(isset($_GET['spa'])){?>
+	<?php if($solution_name) { ?>document.getElementById("frmSolution").submit(); <?php } ?>  //如果是指定文件名，则强制用文件post方式提交。
+        $.post("submit.php?ajax",$("#frmSolution").serialize(),function(data){fresh_result(data);});
+        $("#Encoded").prop('disabled', true);
+        $("#TestRun").prop('disabled', true);
+        count=<?php echo $OJ_SUBMIT_COOLDOWN_TIME?> * 2 ;
+        handler_interval= window.setTimeout("resume();",1000);
+	 <?php if(isset($OJ_REMOTE_JUDGE)&&$OJ_REMOTE_JUDGE) {?>$("#sk").attr("src","remote.php"); <?php } ?>
+<?php }else{?>
         document.getElementById("frmSolution").submit();
+<?php }?>
 }
 
 function do_submit(){
@@ -580,6 +590,7 @@ function resume(){
 	var t=$("#TestRun")[0];
 	if(count<0){
 		 $("#Submit").attr("disabled",false);
+		 $("#Encoded").attr("disabled",false);
 		 $("#Submit").val("<?php echo $MSG_SUBMIT?>");
 		if(t!=null) $("#TestRun").attr("disabled",false);
 		if(t!=null) $("#TestRun").val("<?php echo $MSG_TR?>");
@@ -680,7 +691,7 @@ editor.getSession().on("change", function() {
         var mark="<?php echo isset($id)?'problem_id':'cid';?>";
         var problem_id=$("#"+mark).val();
 	if(!!localStorage){
-		 let key="<?php echo $_SESSION[$OJ_NAME.'_user_id']?>source:"+location.href;
+		 let key="<?php echo htmlentities($_SESSION[$OJ_NAME.'_user_id'])?>source:"+location.href;
 		if(typeof(editor) != "undefined")
 			$("#hide_source").val(editor.getValue());
 		localStorage.setItem(key,$("#hide_source").val());
@@ -690,8 +701,9 @@ editor.getSession().on("change", function() {
    $(document).ready(function(){
    	$("#source").css("height",window.innerHeight-180);  
 	if($("#vcode")!=undefined) $("#vcode").click();
+	$("#Encoded").bind("click",encoded_submit);
 	if(!!localStorage){
-		let key="<?php echo $_SESSION[$OJ_NAME.'_user_id']?>source:"+location.href;
+		let key="<?php echo htmlentities($_SESSION[$OJ_NAME.'_user_id'])?>source:"+location.href;
 		let saved=localStorage.getItem(key);
 		   if(saved!=null&&saved!=""&&saved.length>editor.getValue().length){
                         //let load=confirm("发现自动保存的源码，是否加载？（仅有一次机会）");
@@ -848,7 +860,7 @@ function formatCode() {
 }
 
 // 使用 PHP 判断，如果开启了缩进检测，才绑定 change 事件
-<?php if (isset($OJ_SUOJIN) && $OJ_SUOJIN == true): ?>
+<?php if (isset($OJ_INDENT) && $OJ_INDENT == true): ?>
 editor.getSession().on('change', function() {
     // 建议增加一个防抖，避免高频输入时卡顿
     if (this.indentTimer) clearTimeout(this.indentTimer);
@@ -1023,10 +1035,13 @@ function removeCodeBlockMarkers(str) {
 		    });
 	}
 function fill_data(data){
-	if(typeof(editor) != "undefined")
-		editor.setValue(removeCodeBlockMarkers(data)); // 假设 #file_data 是 div
-	$('#ai_bt').prop('disabled', false);
-	$('#ai_bt').val("再来一次");
+        data=data.replace(/<think>[\s\S]*?<\/think>/g, '');
+        if(typeof(editor) != "undefined")
+                editor.setValue(removeCodeBlockMarkers(data.trim())); // 假设 #file_data 是 div
+        else
+                $("#source").val(data.trim());
+        $('#ai_bt').prop('disabled', false);
+        $('#ai_bt').val("再来一次");
 }
 function pull_result(id){
 	console.log(id);

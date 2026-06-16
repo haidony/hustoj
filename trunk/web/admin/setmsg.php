@@ -1,13 +1,12 @@
 <?php
 require_once("admin-header.php");
 if(!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
-  echo "<a href='../loginpage.php'>Please Login First!</a>";
   exit(1);
 }
 
 echo "<hr>";
 echo "<center><h3>".$MSG_NEWS."-".$MSG_SETMESSAGE."</h3></center>";
-$msgfile=$OJ_SAE?"saestor://web/msg.txt":"msg/$domain.txt";
+$msgfile="msg/".$domain.".txt";
 if(isset($_POST['do'])){
   require_once("../include/check_post_key.php");
   mkdir("msg");

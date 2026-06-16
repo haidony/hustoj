@@ -322,9 +322,11 @@ int already_running(char * lock_file) {
 	write(fd, buf, strlen(buf) + 1);
 	return (0);
 }
+pid_t pidApp =-1 ;
 void run_php_cron(char * work_dir){
 	int mem_lmt=256;
-	pid_t pidApp = fork();
+	pidApp = fork();
+	int once=0;
 	if (pidApp == 0){
 		sprintf(php_lock_file,"%s/cron.pid",work_dir);
 		if(already_running(php_lock_file)){
@@ -363,12 +365,14 @@ void run_php_cron(char * work_dir){
 		setrlimit(RLIMIT_AS, &LIM);
 		execl("/usr/bin/php", "/usr/bin/php","cron.php", (char *) NULL);
 	}else{
-		waitpid(pidApp, NULL, WNOHANG);     // wait 4 one child exit
+		once=waitpid(pidApp, NULL, WNOHANG);     // wait 4 one child exit
+		if(once==pidApp) pidApp=0;
 	}
 }
 void run_client(int runid, int clientid) {
 	char buf[BUFFER_SIZE], runidstr[BUFFER_SIZE];
 	struct rlimit LIM;
+	printf("-------------use docker %d------",use_docker);	
 	LIM.rlim_max = 800;
 	LIM.rlim_cur = 800;
 	setrlimit(RLIMIT_CPU, &LIM);
@@ -414,29 +418,68 @@ void run_client(int runid, int clientid) {
 //			     (char * const )"LC_ALL=zh_CN.UTF-8",NULL};
 	//if (!DEBUG)
 	if(use_docker){
-		char docker_v[BUFFER_SIZE*3];
+		char etc_v[BUFFER_SIZE*3];
+		char core_v[BUFFER_SIZE*3];
 		char data_v[BUFFER_SIZE*3];
-		char client_path[BUFFER_SIZE];
+		char log_v[BUFFER_SIZE*3];
+		//char client_path[BUFFER_SIZE];
 		char data_path[BUFFER_SIZE*2];
 		char real_data_path[BUFFER_SIZE*2];
-		sprintf(docker_v,"%s:/home/judge",oj_home);
-		if(internal_client)
-				sprintf(client_path,"/usr/bin/judge_client");
-		else
-				sprintf(client_path,"/home/judge/src/core/judge_client/judge_client");
+		const int MAX=32;
+		char *argv[MAX];
+		int i=0;
+		for(i=0;i<MAX;i++)argv[i]=(char *)malloc(BUFFER_SIZE);
+		i=0;
+		printf("-------------%s-----------\n",docker_path);	
+		sprintf(argv[i++],"%s",docker_path);
+		sprintf(argv[i++],"container");
+		sprintf(argv[i++],"run");
+		sprintf(argv[i++],"--security-opt=no-new-privileges:true");
+		sprintf(argv[i++],"--pids-limit");
+		sprintf(argv[i++],"100");
+		sprintf(argv[i++],"--rm");
+		sprintf(argv[i++],"--cap-add");
+		sprintf(argv[i++],"SYS_PTRACE");
+//		sprintf(argv[i++],"--cap-add");
+//		sprintf(argv[i++],"CAP_SYS_ADMIN");
+		sprintf(argv[i++],"--net=host");
+		sprintf(log_v,"%s/log:/home/judge/log",oj_home);
+		sprintf(argv[i++],"-v");
+		sprintf(argv[i++],"%s",log_v);
+		sprintf(etc_v,"%s/etc:/home/judge/etc",oj_home);
+		sprintf(argv[i++],"-v");
+		sprintf(argv[i++],"%s",etc_v);
+		sprintf(core_v,"%s/src/core:/home/judge/src/core",oj_home);
+		sprintf(argv[i++],"-v");
+		sprintf(argv[i++],"%s",core_v);
+		sprintf(argv[i++],"-v");
+	        
+		for(int j=0;j<i;j++) write_log("%s ",argv[j]);
 		sprintf(data_path,"%s/data2",oj_home);
 		char *follow=follow_link(data_path,real_data_path,sizeof(real_data_path)-1);
-
-		sprintf(data_v,"%s:/home/judge/data",follow);
 		if(follow!=data_path) {
-				printf("data volume param :%s \n",data_v);
-				execl(docker_path,docker_path, "container","run" ,"--pids-limit", "100","--rm","--cap-add","SYS_PTRACE",  "--cap-add" ,"CAP_SYS_ADMIN" , "--net=host",
-								"-v", docker_v,"-v",data_v, "hustoj", client_path, runidstr, buf, (char *) NULL);
+			sprintf(data_v,"%s:/home/judge/data",follow);
 		}else{
-				execl(docker_path,docker_path, "container","run" ,"--pids-limit", "100","--rm","--cap-add","SYS_PTRACE",  "--cap-add" ,"CAP_SYS_ADMIN" , "--net=host",
-								"-v", docker_v, "hustoj", client_path, runidstr, buf, (char *) NULL);
+			sprintf(data_v,"%s/data:/home/judge/data",oj_home);
 		}
+		sprintf(argv[i++],"%s",data_v);
 
+		sprintf(argv[i++],"hustoj");
+		
+		if(internal_client)
+				sprintf(argv[i++],"/usr/bin/judge_client");
+		else
+				sprintf(argv[i++],"/home/judge/src/core/judge_client/judge_client");
+		sprintf(argv[i++],"%d",runid);
+		sprintf(argv[i++],"%d",clientid);
+		argv[i++]=NULL;
+		if(DEBUG){
+			int l=i;
+			write_log("--------[%d]----------\n",l);
+			for(i=0;i<l;i++) write_log("%s ",argv[i]);
+		}
+		execv(argv[0],argv);
+		perror("docker fail:");
 	}else{
 		execl("/usr/bin/judge_client", "/usr/bin/judge_client", runidstr, buf,
 				oj_home, (char *) NULL);
@@ -480,7 +523,7 @@ int init_mysql() {
 			sleep(2);
 			return 1;
 		} else {
-			return executesql("set names utf8");
+			return executesql("set names utf8mb4");
 		}
 	} else {
 			return executesql("commit");
@@ -683,6 +726,10 @@ int work() {
 			continue;
 		if (workcnt >= max_running) {           // if no more client can running
 			tmp_pid = waitpid(-1, NULL, WNOHANG);     // wait 4 one child exit
+		        if(tmp_pid==pidApp){
+			       	pidApp=0;
+				continue;
+			}
 			if (DEBUG) printf("try get one tmp_pid=%d\n",tmp_pid);
 			for (i = 0; i < max_running; i++){     // get the client id
 				if (ID[i] == tmp_pid){
@@ -711,6 +758,7 @@ int work() {
 						write_log("Judging solution %d", runid);
 						write_log("<<=sid=%d===clientid=%d==>>\n", runid, i);
 					}
+					write_log("-------------use docker %d------",use_docker);	
 					run_client(runid, i);    // if the process is the son, run it
 					workcnt--;
 					exit(0);
@@ -742,12 +790,13 @@ int work() {
                 }
 
 	}
-	int NOHANG=0;
-	if(( max_running >3 || oj_dedicated ) && ( max_running > 7 || rand()%100>20 ) ) NOHANG=WNOHANG;    // CPU小于4个 占用大约80%左右，不要打满；大于7个，瓶颈转为IO，全力工作
-	while ((tmp_pid = waitpid(-1, NULL, NOHANG )) > 0) {       // if run dedicated judge using WNOHANG
+	while ((tmp_pid = waitpid(-1, NULL, pidApp>0 ? WNOHANG:0 )) > 0 ) {       // if run dedicated judge using WNOHANG
+		if(tmp_pid==pidApp){
+			pidApp=0;
+			continue;
+		}
 		for (i = 0; i < max_running; i++){     // get the client id
 			if (ID[i] == tmp_pid){
-			
 				workcnt--;
 				retcnt++;
 				ID[i] = 0;
@@ -756,6 +805,7 @@ int work() {
 		}
 		printf("tmp_pid = %d\n", tmp_pid);
 	}
+
 	if (!http_judge) {
 #ifdef _mysql_h
 		if(res!=NULL) {
@@ -900,6 +950,7 @@ int main(int argc, char** argv) {
 				if(wait_udp_msg(oj_udp_fd)){
 					if (access(php_cron, R_OK ) != -1){
 						if(DEBUG) printf("Run PHP Cron job: %s\n", php_cron);
+						if(pidApp>0) waitpid(pidApp, NULL, WNOHANG);     // wait last defunct
 						run_php_cron(php_path);
 					}
 				}

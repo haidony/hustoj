@@ -23,12 +23,25 @@ if(isset($_SESSION[$OJ_NAME.'_user_id'])){
 			if($task['status']==2){
 				$response=$task['response_body'];
 				$data=json_decode($response);
-				if(isset($data->choices[0]->message->content))
-					echo ($data->choices[0]->message->content);	
-				else
-					echo $response;
+				 if(isset($data->choices[0]->message->content)){
+           //            if(!isset($_SESSION[$OJ_NAME.'_administrator']))
+           //                pdo_query("update users set coin_spent=coin_spent+1 where user_id=?", $_SESSION[$OJ_NAME . '_user_id'] );
+                       echo ($data->choices[0]->message->content);
+                 }else{
+                       echo $response;
+                 }
+
 			}else{
 				echo "waiting";	
+				$file = dirname(dirname(__FILE__)).'/cron.pid';
+				if (file_exists($file)) {
+					// 获取文件最后修改时间与当前时间的差值
+					if ((time() - filemtime($file)) > 5) {
+							trigger_judge($id);
+					}
+				} else {
+							trigger_judge($id);
+				}
 			}
 		}else{
 			echo "not your ai answer:".$user_id."[".$task['user_id']."]";

@@ -1,7 +1,6 @@
 <?php require("admin-header.php");
 require_once("../include/const.inc.php");
 if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
-        echo "<a href='../loginpage.php'>Please Login First!</a>";
         exit(1);
 }?>
 <?php if(isset($_POST['do'])){
@@ -40,7 +39,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
         }else if (isset($_POST['result'])){
                 $result=intval($_POST['result']);
                 $to=intval($_POST['to']);
-                $sql="UPDATE `solution` SET `result`=$to,pass_rate=0 WHERE `result`=? and problem_id>0" ;
+                $sql="UPDATE `solution` SET `result`=$to,pass_rate=0 WHERE `result`=? and problem_id>=0" ;
                 pdo_query($sql,$result) ;
                 $url="../status.php?jresult=$to";
                 echo "<script>location.href='$url';</script>";
@@ -93,7 +92,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
         <li><?php echo $MSG_SUBMIT?>
         <form action='rejudge.php' method=post>
                 <input type=input name='rjsid' placeholder="1002">      <input type='hidden' name='do' value='do'>
-                <input type=hidden name="postkey" value="<?php echo $_SESSION[$OJ_NAME.'_'.'postkey']?>">
+                <input type=hidden name="postkey" value="<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'postkey'], ENT_QUOTES, 'UTF-8')?>">
                 <input type=submit value=submit>
         </form>
         <li><?php echo "$MSG_Manual"?>
@@ -120,13 +119,13 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
 	
 			?>
 		</select>
-                <input type=hidden name="postkey" value="<?php echo $_SESSION[$OJ_NAME.'_'.'postkey']?>">
+                <input type=hidden name="postkey" value="<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'postkey'], ENT_QUOTES, 'UTF-8')?>">
                 <input type=submit value=submit>
         </form>
         <li><?php echo $MSG_CONTEST?>
         <form action='rejudge.php' method=post>
                 <input type=input name='rjcid' placeholder="1003" value='1003' > <input type='hidden' name='do' value='do'>
-                <input type=hidden name="postkey" value="<?php echo $_SESSION[$OJ_NAME.'_'.'postkey']?>">
+                <input type=hidden name="postkey" value="<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'postkey'], ENT_QUOTES, 'UTF-8')?>">
                 <input type=submit value=submit>
         </form>
         <form action='rejudge.php' method=post>
@@ -140,7 +139,7 @@ if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']))){
                 ?>
                 </select>
                 <input type='hidden' name='do' value='do'>
-                <input type=hidden name="postkey" value="<?php echo $_SESSION[$OJ_NAME.'_'.'postkey']?>">
+                <input type=hidden name="postkey" value="<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'postkey'], ENT_QUOTES, 'UTF-8')?>">
                 <input type=submit value=submit>
         </form>
 </div>

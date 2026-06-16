@@ -10,10 +10,13 @@
     $MSG_RECENT_CONTEST="名校联赛";
 	$MSG_LOGOUT="注销";
 	$MSG_LOGIN="登录";
+	$MSG_COOKIE_ERROR="Cookie失效或错误";
 	$MSG_LOST_PASSWORD="忘记密码";
 	$MSG_REGISTER="注册";
 	$MSG_ADMIN="管理";
 	$MSG_SYSTEM="系统";
+	$MSG_SERVICE_DISABLED="接口未启用";
+	$MSG_SETTINGS="系统设置";
 	$MSG_STANDING="名次";
 	$MSG_STATISTICS="统计";
 	$MSG_USERINFO="用户信息";
@@ -130,6 +133,8 @@
 	$MSG_SCHOOL="学校";
         $MSG_GROUP_NAME="班级/小组";
 	$MSG_EMAIL="电子邮件";
+	$MSG_CANNOT_EMPTY="不能为空";
+	$MSG_WRONG_FORMAT="格式错误";
 	$MSG_REG_INFO="设置注册信息";
 	$MSG_VCODE="验证码";
         $MSG_ACTIVE_YOUR_ACCOUNT="激活账号";
@@ -150,11 +155,13 @@
 	$MSG_Output= "输出" ;
 	$MSG_Sample_Input= "样例输入" ;
 	$MSG_Sample_Output= "样例输出" ;
+	$MSG_Sample_Zip= "大样例" ;
 	$MSG_Test_Input= "测试输入" ;
 	$MSG_Test_Output= "测试输出" ;
 	$MSG_NJ= "普通裁判" ;
 	$MSG_SPJ= "特殊裁判" ;
 	$MSG_RTJ= "文本裁判" ;
+	$MSG_INTERACT= "交互裁判" ;
 	$MSG_HINT= "提示" ;
 	$MSG_Source= "来源" ;
 	$MSG_Time_Limit="时间限制";
@@ -277,6 +284,7 @@
   $MSG_SHOW_ALL_TAGS="所有标签";  
   $MSG_TABLE_TRANSPOSE="行列转换";
 
+  $MSG_HELP_SETTINGS="在网页上修改系统配置参数（布尔开关、文本、数字），敏感项受保护";
   $MSG_HELP_SEEOJ="跳转回到前台";
   $MSG_HELP_ADD_NEWS="添加首页显示的新闻";
   $MSG_HELP_NEWS_LIST="管理已经发布的新闻";
@@ -487,6 +495,22 @@
   $MSG_BACK="返回上一页";
   $MSG_NEXT_PAGE="下一页";
   $MSG_PREV_PAGE="上一页";
+  $MSG_ROLLING_RANK="滚榜";
+  $MSG_SIMILARITY="相似度";
+  $MSG_NO_SUBMISSIONS="暂无选手提交";
+  $MSG_NO_CONTACTS="暂无联系人";
+  $MSG_SELECT_CONTACT="请选择一个人聊天";
+	$MSG_IP_EMAIL_REG_OVERLIMIT="您的IP地址或Email已经注册过{$OJ_REG_SPEED}个账户，请稍后再试。";
+
+  $MSG_CONTEST_CLOSED="比赛已经关闭";
+  $MSG_FILE_SUBMIT="文件提交";
+  $MSG_NO_FREOPEN="无需freopen";
+  $MSG_OI_CONTEST_VIEWING="OI比赛进行中，暂时无法查看";
+  $MSG_ADMIN_NO_EMAIL_CONFIG="管理员没有配置邮件发送账户，请联系系统管理员或者老师来手工重置密码。";
+  $MSG_PLEASE_CONFIG_EMAIL="请配置db_info.inc.php中的 \$SMTP_USER 等参数，激活邮件密码找回功能。";
+  $MSG_STARRED_OF_MONTH="本月之星";
+  $MSG_CORRECT_SUBMISSIONS="当前系统正确提交数量";
+  $MSG_TOP_OF_PAGE="顶页";
   
   //email
   $MSG_SYS_WARN="系统警告！";
@@ -513,3 +537,23 @@
   $MSG_FRIENDLY_L8="可以下载测试数据";
   $MSG_FRIENDLY_L9="允许访客提交";
 
+  //aiapi/common.php
+  $MSG_AI_CODE_SUGGESTION_SOURCE_BROWSER="分析我可能薄弱的知识点，问我一个提示性的相关问题。";
+  $MSG_AI_CODE_SUGGESTION="不要直接给出完整代码,只给出问题原因,让我自己学习修改。分析我可能薄弱的知识点，问我一个提示性的相关问题，最后说一句鼓励或安慰的话，卖个萌。";
+  $MSG_AI_PROMPT_SYS="你是一个经验丰富的信息学奥赛编程高手，能帮我用简单清晰的中文，解释我看不懂的报错信息。如果对比中用户的输出为空，可能是没有考虑到多组输入的情况，应该使用循环处理。%s 请尽量言简意赅，节省token消耗。";
+  $MSG_AI_INVALID_PARAM="非法参数";
+  $MSG_AI_PROMPT_USER_TITLE="题目是:";
+  $MSG_AI_PROMPT_USER_SOURCE="源代码是:";
+  $MSG_AI_PROMPT_USER_ERROR="报错信息:";
+  $MSG_COIN="积分";  //可以改成硬币或者🪙
+  $MSG_EARNED="获得";
+  $MSG_BONUS="奖励";
+  $MSG_SPENT="消耗";
+  $MSG_COIN_EARNED="做题获得$MSG_COIN";
+  $MSG_COIN_BONUS="老师奖励$MSG_COIN";
+  $MSG_COIN_SPENT="已消耗$MSG_COIN";
+  $MSG_COIN_BALANCE="当前${MSG_COIN}余额";
+  $MSG_NO_COIN="没有足够的$MSG_COIN";
+  $MSG_PAID="已支付$MSG_COIN";
+
+$MSG_NUM="序号";

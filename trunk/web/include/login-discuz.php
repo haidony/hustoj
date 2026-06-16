@@ -4,21 +4,17 @@
 	function check_login($user_id,$password){
 		session_destroy();
 		session_start();
-		$discuz_host="127.0.0.1";
-		$discuz_port="3306";
-		$discuz_user="root";
 		$discuz_db="discuz";
-		$discuz_pass="root";
-		$discuz_conn=mysql_connect($discuz_host.":".$discuz_port,$discuz_user,$discuz_pass);
 
 		$ret=false;
-		pdo_query("set names utf8");
-		$sql="select password,salt,username from ".$discuz_db.".uc_members where username='$user_id'";
-		$result=pdo_query($sql);
+		pdo_query("set names utf8mb4");
+		// 安全修复：使用参数化查询防止 SQL 注入
+		$sql="select password,salt,username from ".$discuz_db.".uc_members where username=?";
+		$result=pdo_query($sql, $user_id);
 		$row = $result[0];
 		if($discuz_conn){
 			mysql_select_db($discuz_db,$discuz_conn);
-			$result=pdo_query($sql,$discuz_conn);
+			$result=pdo_query($sql, $user_id);
 		
 			if($row['password']==md5(md5($password).$row['salt'])){
 
@@ -30,7 +26,6 @@
 			}
 
 		}
-		
 				
 		return $ret; 
 	}

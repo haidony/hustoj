@@ -100,6 +100,7 @@ CREATE TABLE IF NOT EXISTS `problem` (
   `accepted` int(11) DEFAULT '0',
   `submit` int(11) DEFAULT '0',
   `solved` int(11) DEFAULT '0',
+  `coin` int(11) NOT NULL DEFAULT '1' COMMENT '题目的积分分值',
   `remote_oj` varchar(16) DEFAULT NULL,
   `remote_id` varchar(32) DEFAULT NULL,
   PRIMARY KEY (`problem_id`)
@@ -153,6 +154,12 @@ CREATE TABLE IF NOT EXISTS `solution` (
   KEY `pid` (`problem_id`),
   KEY `res` (`result`),
   KEY `cid` (`contest_id`),
+  KEY `idx_uid_pid` (`user_id`,`problem_id`),
+  KEY `idx_uid_pid_res` (`user_id`,`problem_id`,`result`),
+  KEY `idx_contest_result` (`contest_id`,`result`),
+  KEY `idx_contest_num` (`contest_id`,`num`,`result`),
+  KEY `idx_contest_user_id` (`contest_id`,`user_id`,`solution_id`),
+  KEY `idx_cid_result_num_sid` (`contest_id`,`result`,`num`,`solution_id`),
   KEY `fst` (`first_time`),
   KEY `idx_solution_in_date` (`in_date`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1001 DEFAULT CHARSET=utf8mb4;
@@ -188,12 +195,15 @@ CREATE TABLE IF NOT EXISTS `users` (
   `language` int(11) NOT NULL DEFAULT '1',
   `password` varchar(32) DEFAULT NULL,
   `reg_time` datetime DEFAULT NULL,
-  `expiry_date` date not null default '2099-01-01',	
+  `expiry_date` date NOT NULL DEFAULT '2099-01-01',	
   `nick` varchar(20) NOT NULL DEFAULT '',
   `school` varchar(20) NOT NULL DEFAULT '',
-  `group_name` varchar(16) not null default '',
-  `activecode` varchar(16) not null default '',
-  `starred` int(11) not null default '0',
+  `group_name` varchar(16) NOT NULL DEFAULT '',
+  `activecode` varchar(16) NOT NULL DEFAULT '',
+  `starred` int(11) NOT NULL DEFAULT '0',
+  `coin_earned` int(11) NOT NULL DEFAULT '0' COMMENT '做题获得的累计积分',
+  `coin_bonus` int(11) NOT NULL DEFAULT '0' COMMENT '老师奖励的累计积分',
+  `coin_spent` int(11) NOT NULL DEFAULT '0' COMMENT '已消耗的累计积分',
   PRIMARY KEY (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
@@ -271,20 +281,29 @@ CREATE TABLE `openai_task_queue` (
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='异步任务队列-MyISAM版';
 
 delimiter //
-	
+
 drop trigger if exists firstAC//
+UPDATE solution s JOIN (SELECT user_id,problem_id, MIN(solution_id) AS first_solution_id FROM solution WHERE result = 4 GROUP BY user_id, problem_id ) t ON s.solution_id = t.first_solution_id SET s.first_time = 1 //
 create trigger firstAC
 before update on solution
 for each row
 begin
  declare acTimes int;
+ declare acCoin int;
  if new.result=4 then
-    select count(1) from solution where problem_id=new.problem_id and result=4 and first_time=1 and  user_id=new.user_id into acTimes;
+    select count(1) from solution where problem_id=new.problem_id and result=4 and first_time=1 and user_id=new.user_id into acTimes;
+    select ifnull(coin, 1) from problem where  problem_id=new.problem_id into acCoin;
     if acTimes=0 then
         set new.first_time=1;
+        if old.first_time=0 then
+            update users 
+                set coin_earned = coin_earned + acCoin 
+                where user_id = new.user_id;
+        end if;
     end if;
 end if;
 end;//
+
 	
 drop trigger if exists simfilter//
 create trigger simfilter

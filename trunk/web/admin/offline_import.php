@@ -1,11 +1,10 @@
 <?php
-ini_set("display_errors", "Off");  //set this to "On" for debugging  ,especially when no reason blank shows up.
-error_reporting(E_ALL);
+ini_set("display_errors", "Off");  // 生产环境应关闭调试
+error_reporting(0);  // 禁止显示任何错误信息
 require_once ("admin-header.php");
 //require_once("../include/check_post_key.php");
 
 if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator'])||isset($_SESSION[$OJ_NAME.'_problem_editor'])  )) {
-  echo "<a href='../loginpage.php'>Please Login First!</a>";
   exit(1);
 }
 
@@ -77,7 +76,7 @@ function mkpta($pid,$prepends,$node) {
 
 
 function import_dir($json) {
-  global $OJ_DATA,$OJ_SAE,$OJ_REDIS,$OJ_REDISSERVER,$OJ_REDISPORT,$OJ_REDISQNAME,$domain,$DOMAIN;
+  global $OJ_DATA,$OJ_REDIS,$OJ_REDISSERVER,$OJ_REDISPORT,$OJ_REDISQNAME,$domain,$DOMAIN;
   $qduoj_problem=json_decode($json);
   echo( $qduoj_problem->{'problem'}->{'title'})."<br>";
 

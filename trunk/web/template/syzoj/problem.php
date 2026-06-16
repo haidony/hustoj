@@ -24,15 +24,6 @@ div[class*=ace_br] {
 
 </style>
 <script src="<?php echo $OJ_CDN_URL.$path_fix."template/$OJ_TEMPLATE/"?>clipboard.min.js"></script>
-<script src="<?php echo $OJ_CDN_URL.$path_fix."template/bs3/"?>marked.min.js"></script>
-<script src="<?php echo $OJ_CDN_URL.$path_fix."template/syzoj/js/"?>markdown-it.min.js"></script>
-<link href='<?php echo $OJ_CDN_URL?>highlight/styles/shCore.css' rel='stylesheet' type='text/css'/>
-<link href='<?php echo $OJ_CDN_URL?>highlight/styles/shThemeDefault.css' rel='stylesheet' type='text/css'/>
-<script src='<?php echo $OJ_CDN_URL?>highlight/scripts/shCore.js' type='text/javascript'></script>
-<script src='<?php echo $OJ_CDN_URL?>highlight/scripts/shBrushCpp.js' type='text/javascript'></script>
-<script src='<?php echo $OJ_CDN_URL?>highlight/scripts/shBrushJava.js' type='text/javascript'></script>
-<script src='<?php echo $OJ_CDN_URL?>highlight/scripts/shBrushPython.js' type='text/javascript'></script>
-<script src='<?php echo $OJ_CDN_URL?>highlight/scripts/shBrushCSharp.js' type='text/javascript'></script>
 
 <div class="padding ">
 <div class="ui center aligned grid">
@@ -49,6 +40,7 @@ div[class*=ace_br] {
             //echo "<title>$MSG_PROBLEM ".$PID[$pid].": ".$row['title']." </title>";
             echo "$MSG_PROBLEM ".$PID[$pid]."：".$row['title'];
           }
+          if(intval($row['coin'])>0) for($i=0;$i<min(intval($row['coin']),5);$i++) echo "<span style='color:orange'>✦</span>";
           if($row['defunct']=="Y")
           echo "<span class=\"p-label ui tiny red label\">$MSG_RESERVED</span>";
         ?>
@@ -76,7 +68,7 @@ if(file_exists($solution_file)){
       </div>
       <div class="row" style="margin-top: -23px">
         <!--   <span class="ui label">题目类型：传统</span> -->
-          <span class="ui label"><?php echo $MSG_JUDGE_STYLE ?>：<?php echo array($MSG_NJ,$MSG_SPJ,$MSG_RTJ)[$row['spj']] ; ?> </span>
+          <span class="ui label"><?php echo $MSG_JUDGE_STYLE ?>：<?php echo array($MSG_NJ,$MSG_SPJ,$MSG_RTJ,$MSG_INTERACT)[$row['spj']] ; ?> </span>
           <span class="ui label"><?php echo $MSG_Creator ?>：<span id='creator'></span></span>
       </div>
       <div class="row" style="margin-top: -23px">
@@ -120,7 +112,7 @@ if(file_exists($solution_file)){
       ?>
       
         <div class="ui buttons right floated">
-            <a class="small ui button" href="admin/problem_edit.php?id=<?php echo $id?>&getkey=<?php echo $_SESSION[$OJ_NAME.'_'.'getkey']?>"><?php echo $MSG_EDIT.$MSG_PROBLEM?></a>
+            <a class="small ui button" href="admin/problem_edit.php?id=<?php echo $id?>&getkey=<?php echo htmlentities($_SESSION[$OJ_NAME.'_'.'getkey'])?>"><?php echo $MSG_EDIT.$MSG_PROBLEM?></a>
             <a class="small ui button" href='javascript:phpfm(<?php echo $row['problem_id'];?>)'><?php echo $MSG_TEST_DATA?></a>
         </div>
       <?php }?>
@@ -172,24 +164,24 @@ document.addEventListener('keydown', function(e) {
 
   <div class="row">
     <div class="column">
-      <h4 class="ui top attached block header"><?php echo $MSG_Description?></h4>
+      <h4 class="ui top attached block header"><?php if(!(str_contains($row['description'],"问题描述")|| str_contains($row['description'],$MSG_Description))) echo $MSG_Description?></h4>
       <div id="description" class="ui bottom attached segment font-content">
-		<?php if (str_contains($row['description'],"md auto_select"))echo $row['description']; else echo  bbcode_to_html($row['description']); ?></div>
+		<?php if (str_contains($row['description'],"md auto_select")|| str_contains($row['description'],"<svg") )echo $row['description']; else echo  bbcode_to_html($row['description']); ?></div>
     </div>
   </div>
-  <?php if($row['input']||isset($_GET['spa'])){ ?>
+  <?php if(!(empty($row['input']) || $row['input']=="<span class='md'>\n</span>" )||isset($_GET['spa'])){ ?>
     <div class="row">
       <div class="column">
           <h4 class="ui top attached block header"><?php echo $MSG_Input?></h4>
-          <div id='input' class="ui bottom attached segment font-content"><?php echo bbcode_to_html($row['input']); ?></div>
+          <div id='input' class="ui bottom attached segment font-content"><?php echo str_contains($row['input'],"<svg")?$row['input']:bbcode_to_html($row['input']); ?></div>
       </div>
     </div>
   <?php }?>
-  <?php if($row['output']||isset($_GET['spa'])){ ?>
+  <?php if(!(empty($row['output']) || $row['output']=="<span class='md'>\n</span>" )||isset($_GET['spa'])){ ?>
     <div class="row">
         <div class="column">
           <h4 class="ui top attached block header"><?php echo $MSG_Output?></h4>
-          <div id='output' class="ui bottom attached segment font-content"><?php echo bbcode_to_html($row['output']); ?></div>
+          <div id='output' class="ui bottom attached segment font-content"><?php echo str_contains($row['output'],"<svg")?$row['output']: bbcode_to_html($row['output']); ?></div>
         </div>
     </div>
   <?php }?>
@@ -226,12 +218,14 @@ document.addEventListener('keydown', function(e) {
           </div>
         </div>
     </div>
-  <?php }?>
-  <?php if($row['hint']||isset($_GET['spa'])){ ?>
+  <?php }
+   if(file_exists($OJ_DATA."/".$id."/sample.zip")) echo "<a class='small ui success button' href='download.php?id=$id' role='button'>$MSG_DOWNLOAD $MSG_Sample_Zip</a>";  
+  ?>
+  <?php if(!(empty($row['hint']) || $row['hint']=="<span class='md'>\n</span>" )||isset($_GET['spa'])){ ?>
     <div class="row">
         <div class="column">
           <h4 class="ui top attached block header"><?php echo $MSG_HINT?></h4>
-          <div id='hint' class="ui bottom attached segment font-content hint"><?php echo bbcode_to_html($row['hint']); ?></div>
+          <div id='hint' class="ui bottom attached segment font-content hint"><?php echo str_contains($row['hint'],"<svg")?$row['hint']:bbcode_to_html($row['hint']); ?></div>
         </div>
     </div>
   <?php }?>
@@ -442,12 +436,29 @@ $(document).ready(function() {
   });
 
 
- SyntaxHighlighter.all(); 
   </script>
 
     
 <?php include("template/$OJ_TEMPLATE/footer.php");?>
 
+<link rel="stylesheet" href="<?php echo $OJ_CDN_URL.$path_fix."template/$OJ_TEMPLATE/css/"?>highlight.css">
+<script src="<?php echo $OJ_CDN_URL.$path_fix."template/$OJ_TEMPLATE/js/"?>highlight.min.js"></script>
+<script src="<?php echo $OJ_CDN_URL.$path_fix."template/$OJ_TEMPLATE/js/"?>marked.umd.js"></script>
+<script src="<?php echo $OJ_CDN_URL.$path_fix."template/$OJ_TEMPLATE/js/"?>marked-highlight.umd.js"></script>
+<script> 
+ const { Marked } = globalThis.marked;
+ const { markedHighlight } = globalThis.markedHighlight;
+const marked = new Marked(
+  markedHighlight({
+	emptyLangClass: 'hljs',
+    langPrefix: 'hljs language-',
+    highlight(code, lang, info) {
+      const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+      return hljs.highlight(code, { language }).value;
+    }
+  })
+);
+</script>
   <script>
 function phpfm(pid){
     //alert(pid);
@@ -519,19 +530,30 @@ function admin_mod(){
 		
 		$(".md").each(function(){
 <?php if ($OJ_MARKDOWN  && $OJ_MARKDOWN=="marked.js") {?>
-			$(this).html(marked.parse($(this).html()));             // html() make > to &gt;   text() keep >
-<?php }else if ($OJ_MARKDOWN  && $OJ_MARKDOWN=="markdown-it") {?>
-			const md = window.markdownit();
-			$(this).html(md.render($(this).text()));
+			let htm=$(this).html();
+			let cur=$(this);
+                        if(htm.indexOf("```")!=-1){
+                                htm=$(this).text();                     
+			}
+			marked.parse(htm).then(html => { 
+				cur.html(html); 
+				MathJax.typeset(); 
+				<?php if ( $row['spj']>1 ){?>
+					window.setTimeout("generateMarkdownAutoSelect();",100);
+				<?php }?>
+
+			});
+						//$(this).html(marked.parse($(this).html()));             // html() make > to &gt;   text() keep >
 <?php } ?>
 		});
 	  	// adding note for ```input1  ```output1 in description
-	        for(let i=1;i<10;i++){
+                setTimeout(function(){
+                for(let i=1;i<10;i++){
                         $(".language-input"+i).parent().before("<div><?php echo $MSG_Sample_Input?>"+i+":</div>");
                         $(".language-output"+i).parent().before("<div><?php echo $MSG_Sample_Output?>"+i+":</div>");
                 }
-
-	       
+                },200);
+       
         $(".md table tr td").css({
             "border": "1px solid grey",
             "text-align": "center",
@@ -548,6 +570,20 @@ function admin_mod(){
         });
 	        
 	<?php } ?>
+	<?php if (($row['spj']==2 || isset($_GET['sid']) || (isset($OJ_AUTO_SHOW_OFF)&&$OJ_AUTO_SHOW_OFF)  )  && !isset($_GET['spa']) ){?>
+	    transform();
+	<?php }?>
+	admin_mod(); 
+	MathJax.typeset();
+
+	<?php if ( $row['spj']>1 ){?>
+		window.setTimeout("generateAutoSelect();",100);
+	<?php }?>
+  });
+var did_auto_select=false;
+function generateAutoSelect(){
+	if(did_auto_select) return;
+	else did_auto_select=true;
 	        //单纯文本1. A. B. C. D. 自动变控件
         $('span[class=auto_select]').each(function(){
                 let i=1;
@@ -584,8 +620,11 @@ function admin_mod(){
                 $(this).html(raw);
         });
 
+	bindSelect();
+}
+function generateMarkdownAutoSelect(){
 // subjective problems from hydroOJ markdown and embeded marks
-               $('span[class="md auto_select"]').each(function(){
+        $('span[class="md auto_select"]').each(function(){
                 let i=1;
                 let options=['A','B','C','D','E','F','G'];
                 $(this).find("ul").each(function(){
@@ -613,7 +652,9 @@ function admin_mod(){
                 html=html.replaceAll("＞","&gt;");
                 $(this).html(html);
         });
-
+	bindSelect();
+}
+function bindSelect(){
 
         $(".auto_select").find('input[type="text"]').change(function(){
                 selectOne($(this).attr("name"),$(this).val());
@@ -633,12 +674,11 @@ function admin_mod(){
                 });
                 selectMulti(num,answer);
         }).css("width","24px").css("height","21px");
-	<?php if (  ($row['spj']>1 || isset($_GET['sid']) || (isset($OJ_AUTO_SHOW_OFF)&&$OJ_AUTO_SHOW_OFF)  )  && !isset($_GET['spa']) ){?>
-	    transform();
-	<?php }?>
-	    admin_mod();
 
-  });
+}
+
+
+
   </script>   
 
 
@@ -692,11 +732,12 @@ $(document).ready(function () {
     <!--以下为了加载公式的使用而既加入-->
 <script>
   MathJax = {
-    tex: {inlineMath: [['$', '$'], ['\\(', '\\)']]}
+    startup : { typeset: false  } ,
+    tex: {inlineMath: [['$', '$'], ['\\(', '\\)'], ['\\[', '\\]']]}
   };
 </script>
 
-<script id="MathJax-script" async src="template/bs3/tex-chtml.js"></script>
+<script id="MathJax-script" async src="template/syzoj/js/tex-chtml.js"></script>
 <style>
 .jumbotron1{
   font-size: 18px;

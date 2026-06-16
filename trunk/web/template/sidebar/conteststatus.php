@@ -127,14 +127,14 @@
           </a>
           <?php
       if (isset($_GET['prevtop']))
-      echo "<a class=\"item\" href=\"status.php?".$str2."&top=".intval($_GET['prevtop'])."\">上一页</a>";
+      echo "<a class=\"item\" href=\"status.php?".$str2."&top=".intval($_GET['prevtop'])."\">".$MSG_PREV_PAGE."</a>";
       else
-      echo "<a class=\"item\" href=\"status.php?".$str2."&top=".($top+20)."\">上一页</a>";
+      echo "<a class=\"item\" href=\"status.php?".$str2."&top=".($top+20)."\">".$MSG_PREV_PAGE."</a>";
 
       ?>
 
           <a class="icon item" href="<?php echo "status.php?".$str2."&top=".$bottom."&prevtop=$top"; ?>" id="page_next">
-            下一页
+            <?php echo $MSG_NEXT_PAGE?>
           </a>
         </div>
   </div>
@@ -154,7 +154,7 @@
         } ?>
         ''];
         var oj_mark= <?php echo "'$OJ_MARK'";?>;
-        var user_id="<?php if (isset($_SESSION[$OJ_NAME."_user_id"])&& $OJ_FANCY_RESULT ) echo $_SESSION[$OJ_NAME."_user_id"]; ?>";
+        var user_id="<?php if (isset($_SESSION[$OJ_NAME."_user_id"])&& $OJ_FANCY_RESULT ) echo htmlentities($_SESSION[$OJ_NAME."_user_id"], ENT_QUOTES, 'UTF-8'); ?>";
         var fancy_mp3="<?php if (isset($_SESSION[$OJ_NAME."_user_id"]) && $OJ_FANCY_RESULT ) echo $OJ_FANCY_MP3; ?>";
 </script>
         <script src="template/<?php echo $OJ_TEMPLATE?>/auto_refresh.js?v=0.52" ></script>

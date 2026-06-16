@@ -2,7 +2,7 @@
   require_once("../include/db_info.inc.php");
   require_once("admin-header.php");
   if (!(isset($_SESSION[$OJ_NAME.'_'.'administrator']) || isset($_SESSION[$OJ_NAME.'_'.'contest_creator']) || isset($_SESSION[$OJ_NAME.'_'.'problem_editor']))) {
-    echo "<a href='../loginpage.php'>Please Login First!</a>";
+    echo "<a href='../loginpage.php'> $MSG_Login </a>";
     exit(1);
   }
 ?>
@@ -31,7 +31,12 @@
   <div class="ui toggle checkbox">
         <input type="checkbox" id="preview-toggle" checked>
         <label for="preview-toggle">题目预览</label>
-    </div>
+  </div>
+	&nbsp;&nbsp;
+  <div class="ui toggle checkbox">
+        <input type="checkbox" id="full-toggle" checked>
+        <label for="full-toggle">完整结构</label>
+  </div>
           <?php echo "<h3>".$MSG_TITLE."</h3>"?>
           <input class="input input-large" style="width:100%;" type=text name='title' id='title' > 
 		<input class="btn btn-success" type=submit value='<?php echo $MSG_SAVE?>' name=submit> 
@@ -43,12 +48,17 @@
           <input class="input input-mini" type=number min="0.001" max="300" step="0.001" name=time_limit size=20 value=1> sec
           <?php echo $MSG_Memory_Limit?>
           <input class="input input-mini" type=number min="1" max="2048" step="1" name=memory_limit size=20 value=128> MiB<br><br>
+          <?php if (isset($_SESSION[$OJ_NAME."_"."administrator"]) || isset($_SESSION[$OJ_NAME."_"."problem_editor"])) { ?>
+          <?php echo "$MSG_COIN"?>
+          <input class="input input-mini" type=number min="0" max="9999" step="1" name=coin size=20 value=1> <br><br>
+          <?php } ?>
         </p>
         <p align=left>
           <?php echo "<h4>".$MSG_Description."(<64kB)</h4>"?>
-	  <textarea class="kindeditor" rows=13 name=description cols=80><span class='md auto_select'>&nbsp;
+	  <textarea class="kindeditor" rows=33 name=description cols=80><span class='md auto_select'>&nbsp;
 &nbsp;</span></textarea><br>
         </p>
+	<span class="full" >
         <p align=left>
           <?php echo "<h4>".$MSG_Input."(<64kB)</h4>"?>
           <textarea class="kindeditor" rows=13 name=input cols=80><span class='md'>
@@ -82,11 +92,13 @@
           <textarea class="kindeditor" rows=13 name=hint cols=80><span class='md'>
 </span></textarea><br></textarea><br>
         </p>
+	</span>
         <p>
           <?php echo "<h4>".$MSG_SPJ."</h4>"?>
 	  <input type=radio name=spj value='0' checked ><?php echo $MSG_NJ?> 更多测试数据，在题目添加后补充。<br> 
 	  <input type=radio name=spj value='1' ><?php echo $MSG_SPJ?> <?php echo "(".$MSG_HELP_SPJ.")"?><br>
 	  <input type=radio name=spj value='2' ><?php echo $MSG_RTJ?>(用于选择判断填空题，用法见<a target='_blank' href='http://hustoj.com'>hustoj.com</a>)<br>
+      <input type=radio name=spj value='3' ><?php echo $MSG_INTERACT?><br>
         </p>
         <p align=left>
           <?php echo "<h4>".$MSG_SOURCE."</h4>"?>
@@ -149,45 +161,46 @@
   }
   function sync(){
 	console.log("sync...");
-	let preview=$("#previewFrame").contents();
+	let preFrame=$("#previewFrame").contents();
 	let title=$("input[name=title]").val();
-	preview.find("h1:first").html(title);
+	preFrame.find("h1:first").html(title);
 	let time=$("input[name=time_limit]").val();
-	preview.find("span.ui.label").eq(0).html("<?php echo $MSG_Time_Limit ?>："+time);
+	preFrame.find("span.ui.label").eq(0).html("<?php echo $MSG_Time_Limit ?>："+time);
 	let memory=$("input[name=memory_limit]").val();
-	preview.find("span.ui.label").eq(1).html("<?php echo $MSG_Memory_Limit ?>："+memory);
+	preFrame.find("span.ui.label").eq(1).html("<?php echo $MSG_Memory_Limit ?>："+memory);
 	
-	let description=$("textarea").eq(0).val();
-	preview.find("#description").html(description);
-	preview.find("#description .md").each(function(){
+	let description=$("textarea").eq(1).val();
+	console.log("description:"+description);
+	preFrame.find("#description").html(description);
+	preFrame.find("#description .md").each(function(){
 		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
 		$(this).html(marked.parse($(this).html()));
 	});
   
 	let input=$("textarea").eq(3).val();
-	preview.find("#input").html(input);
-	preview.find("#input .md").each(function(){
+	preFrame.find("#input").html(input);
+	preFrame.find("#input .md").each(function(){
 		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
 		$(this).html(marked.parse($(this).html()));
 	});
 	let output=$("textarea").eq(5).val();
-	preview.find("#output").html(output);
-	preview.find("#output .md").each(function(){
+	preFrame.find("#output").html(output);
+	preFrame.find("#output .md").each(function(){
 		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
 		$(this).html(marked.parse($(this).html()));
 	});
 
 	let sinput=$("textarea").eq(6).val();
-	preview.find("#sinput").html(sinput);
+	preFrame.find("#sinput").html(sinput);
 	let soutput=$("textarea").eq(7).val();
-	preview.find("#soutput").html(soutput);
+	preFrame.find("#soutput").html(soutput);
 	let hint=$("textarea").eq(11).val();
-	preview.find("#hint").html(hint);
-	preview.find("#hint .md").each(function(){
+	preFrame.find("#hint").html(hint);
+	preFrame.find("#hint .md").each(function(){
 		if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
 		$(this).html(marked.parse($(this).html()));
 	});
-	if($("#previewFrame")[0] != undefined) $("#previewFrame")[0].contentWindow.MathJax.typeset();
+	if($("#previewFrame")[0] != undefined && $("#previewFrame")[0].contentWindow.MathJax != undefined ) $("#previewFrame")[0].contentWindow.MathJax.typeset();
   }
  
    $(document).ready(function(){
@@ -201,6 +214,20 @@
                 } else {
                     // 假设这里是关闭预览的函数
                     untransform();
+                }
+            });
+            $('#full-toggle').change(function() {
+		$(".full").toggle();
+                if(this.checked) {
+		    if($("textarea").eq(3).val().trim()=="") $("textarea").eq(2).val("<span class='md'>\n</span>");
+		    if($("textarea").eq(5).val().trim()=="") $("textarea").eq(4).val("<span class='md'>\n</span>");
+		    if($("textarea").eq(9).val().trim()=="") $("textarea").eq(8).val("<span class='md'>\n</span>");
+		    console.log("trim["+$("textarea").eq(8).val()+"]");
+                } else {
+		    if($("textarea").eq(3).val().trim()=="<span class='md'>\n</span>") $("textarea").eq(2).val("");
+		    if($("textarea").eq(5).val().trim()=="<span class='md'>\n</span>") $("textarea").eq(4).val("");
+		    if($("textarea").eq(9).val().trim()=="<span class='md'>\n</span>") $("textarea").eq(8).val("");
+		    console.log("trim["+$("textarea").eq(8).val()+"]");
                 }
             });
         });
@@ -221,7 +248,7 @@ function untransform() {
     $("textarea").off('keyup', sync);
 }
 function fill_data( data ){
-
+   data=data.replace(/<think>[\s\S]*?<\/think>/g, '');
    let title=$('#title').val();
 	    console.log(title);
 		if(title==""){
@@ -265,7 +292,8 @@ function fill_data( data ){
 			    // 如果解析失败,按旧格式处理
 			    let description = "<span class='md'>" + data + "</span>";
 			    $("textarea[name='description']").val(description);
-			    parsedData = null;
+			    //parsedData = null;
+			    parsedData.description = description.trim();
 			}
 		    }
 		    
